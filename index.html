@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGIS Demo</title>
+    <link rel="icon" type="image/x-icon" href="resources/Logo DUT.ico">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/css/ol.css" type="text/css">
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/build/ol.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://cdn.polyfill.io/v3/polyfill.min.js?features=fetch,requestAnimationFrame,Element.prototype.classList,TextDecoder"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/3.18.3/minified.js"></script>
+    <script src="https://kit.fontawesome.com/aa99f25d07.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="top">
+            <img src="resources/logo DUT and Name.png" alt="" id="logo">
+            <h3 id="heading">Kỹ Thuật xây dựng - Chuyên ngành tin học xây dựng <br> Khoa Xây dựng Công trình thủy</h3>
+            <nav class="hyperlink-container">
+                <a href="">Trang Chủ</a>
+                <a href="">Giới Thiệu</a>
+                <!-- <a href="">Quản Lý</a>
+                <a href="">Tin Tức</a> -->
+                <a href="">Liên Hệ</a>
+            </nav>
+        </div>
+
+        <div class="bottom-top">
+            <button class="sidebar-button" id="danh-muc">Danh Mục</button>
+            <button class="sidebar-button" id="truy-van">Truy Vấn</button>
+
+            <div class="cong-cu-bar">
+                <p> Công cụ:</p>
+                <button class="cong-cu" id="home-button">
+                    <i class="fa-solid fa-house-chimney-window" title="Home"></i>
+                </button>
+                <button class="cong-cu" id="hand-button">
+                    <i class="fa-solid fa-hand" title="Con trỏ"></i>
+                </button>
+                <button class="cong-cu" id="draw-area-button">
+                    <i class="fa-solid fa-draw-polygon" title="Đo diện tích"></i>
+                </button>
+                <button class="cong-cu" id="draw-line-button">
+                    <i class="fa-solid fa-pen-ruler" title="Đo đoạn thẳng"></i>
+                </button>
+                <div class="search-button">
+                    <button class="cong-cu" id="search-button">
+                        <i class="fa-solid fa-magnifying-glass" title="Tìm kiếm"></i>
+                    </button>
+                    <input id="input" type="text" class="input" placeholder="Tìm kiếm...">
+                </div>
+            </div>
+        </div>
+
+        <div class="left">
+            <div class="plus">
+                <i class="fa-regular fa-square-plus"></i>
+                <i class="fa-regular fa-square-minus"></i>
+                <p class="plus-heading">Ranh giới hành chính</p>
+            </div>
+            <div class="plus-content">
+                <div class="content-item">Tin học xây dựng</div>
+                <div class="content-item">Tin học xây dựng</div>
+                <div class="content-item">Tin học xây dựng</div>
+                <div class="content-item">Tin học xây dựng</div>
+                <div class="content-item">Tin học xây dựng</div>
+            </div>
+
+            <div class="plus ">
+                <i class="fa-regular fa-square-plus"></i>
+                <i class="fa-regular fa-square-minus"></i>
+                <p class="plus-heading">Sạt lở đất</p>
+            </div>
+            <div class="plus-content">
+                <div class="content-item">Tin học xây dựng</div>
+                <div class="content-item">Tin học xây dựng</div>
+                <div class="content-item">Tin học xây dựng</div>
+                <div class="content-item">Tin học xây dựng</div>
+                <div class="content-item">Tin học xây dựng</div>
+            </div>
+
+        </div>
+
+        <div class="map-container">
+            <div id='map' class="map"></div>
+
+            <button id="map-button" title="Tùy chỉnh bản đồ">
+                <i class="fa-solid fa-map-location-dot"></i>
+            </button>
+
+            <div class="map-menu" id="map-menu">
+                <div class="map-menu__heading">
+                    <input type="checkbox" id="map-menu__heading">
+                    <label for="map-menu__heading" id="">Các lớp dữ liệu</label>
+                </div>
+                <div class="map-menu__map">
+                    <div>
+                        <input type="checkbox" id="anhquyen1">
+                        <label for="anhquyen1">Trần Anh Quyền 1</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="anhquyen2">
+                        <label for="anhquyen2">Trần Anh Quyền 2</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="anhquyen3">
+                        <label for="anhquyen3">Trần Anh Quyền 3</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="anhquyen4">
+                        <label for="anhquyen4">Trần Anh Quyền 4</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="anhquyen5">
+                        <label for="anhquyen5">Trần Anh Quyền 5</label>
+                    </div>
+                </div>
+
+                <div class="map-menu__heading">
+                    <label>Bản đồ nền</label>
+                </div>
+                <div class="map-menu__map">
+                    <input type="radio" name="baseLayerRadioButton" value="OSMStandard" id="OSMStandard" checked />
+                    <label for="OSMStandard">Open Street Map</label><br>
+                    <input type="radio" name="baseLayerRadioButton" value="StamenTerrian" id="StamenTerrian" />
+                    <label for="StamenTerrian">StamenTerrian</label> <br>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="bottom">
+            <div>
+                <button class="bottom-bar-button">Chú thích</button>
+                <button class="bottom-bar-button">Overview map</button>
+            </div>
+            <p>Trong suốt</p>
+            <input id="opacity-input" type="range" min="0" max="1" step="0.01" value="1" />
+            <p></p>
+            <p id="opacity-output">0%</p>
+            <p>|</p>
+            <p>Tỷ lệ</p>
+            <select name="map-scale" id="map-scale">	
+                <option value="1:1">1:1</option>
+				<option value="1:5">1:5</option>
+				<option value="1:10">1:10</option>
+				<option value="1:20">1:20</option>
+				<option value="1:25">1:25</option>
+				<option value="1:50">1:50</option>
+				<option value="1:100">1:100</option>
+				<option value="1:250">1:250</option>
+				<option value="1:500">1:500</option>
+				<option value="1:750">1:750</option>
+				<option value="1:1000">1:1.000</option>
+				<option value="1:2000">1:2.000</option>
+				<option value="1:5000">1:5.000</option>
+				<option value="1:10000">1:10.000</option></select>
+            <p>|</p>
+
+            <div id="mouse-position"></div>
+        </div>
+    </div>
+
+
+    <div id="popup" class="ol-popup">
+        <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+
+        <div id="popup-content"></div>
+    </div>
+
+    <script type="module" src='./main.js'></script>
+</body>
+
+</html>
