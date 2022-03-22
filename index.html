@@ -39,6 +39,13 @@
                 <button class="cong-cu" id="home-button">
                     <i class="fa-solid fa-house-chimney-window" title="Home"></i>
                 </button>
+                <button class="cong-cu" id="zoom-in-button">
+                    <i class="fa-solid fa-magnifying-glass-plus" title="Phóng to"></i>
+                </button>
+                <button class="cong-cu" id="zoom-out-button" title="Thu nhỏ">
+                    <i class="fa-solid fa-magnifying-glass-minus"></i>
+                </button>
+
                 <button class="cong-cu" id="hand-button">
                     <i class="fa-solid fa-hand" title="Con trỏ"></i>
                 </button>
@@ -84,6 +91,15 @@
                 <div class="content-item">Tin học xây dựng</div>
             </div>
 
+            <form class="form-inline">
+                <label for="type">Measurement type &nbsp;</label>
+                <select id="type">
+                  <option value="length">Length (LineString)</option>
+                  <option value="area">Area (Polygon)</option>
+                  <option value="none">None</option>
+                </select>
+
+            </form>
         </div>
 
         <div class="map-container">
@@ -100,25 +116,10 @@
                 </div>
                 <div class="map-menu__map">
                     <div>
-                        <input type="checkbox" id="anhquyen1">
-                        <label for="anhquyen1">Trần Anh Quyền 1</label>
+                        <input type="checkbox" id="hanhChinhCb" checked>
+                        <label for="hanhChinhCb">Bản đồ địa chính </label>
                     </div>
-                    <div>
-                        <input type="checkbox" id="anhquyen2">
-                        <label for="anhquyen2">Trần Anh Quyền 2</label>
-                    </div>
-                    <div>
-                        <input type="checkbox" id="anhquyen3">
-                        <label for="anhquyen3">Trần Anh Quyền 3</label>
-                    </div>
-                    <div>
-                        <input type="checkbox" id="anhquyen4">
-                        <label for="anhquyen4">Trần Anh Quyền 4</label>
-                    </div>
-                    <div>
-                        <input type="checkbox" id="anhquyen5">
-                        <label for="anhquyen5">Trần Anh Quyền 5</label>
-                    </div>
+
                 </div>
 
                 <div class="map-menu__heading">
@@ -135,10 +136,11 @@
         </div>
 
         <div class="bottom">
-            <div>
+            <div class="bottom_button">
                 <button class="bottom-bar-button">Chú thích</button>
                 <button class="bottom-bar-button">Overview map</button>
             </div>
+
             <p>Trong suốt</p>
             <input id="opacity-input" type="range" min="0" max="1" step="0.01" value="1" />
             <p></p>
@@ -146,32 +148,34 @@
             <p>|</p>
             <p>Tỷ lệ</p>
             <select name="map-scale" id="map-scale">	
-                <option value="1:1">1:1</option>
-				<option value="1:5">1:5</option>
-				<option value="1:10">1:10</option>
-				<option value="1:20">1:20</option>
-				<option value="1:25">1:25</option>
-				<option value="1:50">1:50</option>
-				<option value="1:100">1:100</option>
-				<option value="1:250">1:250</option>
-				<option value="1:500">1:500</option>
-				<option value="1:750">1:750</option>
-				<option value="1:1000">1:1.000</option>
-				<option value="1:2000">1:2.000</option>
-				<option value="1:5000">1:5.000</option>
-				<option value="1:10000">1:10.000</option></select>
+                    <option value="1:1">1:1</option>
+                    <option value="1:5">1:5</option>
+                    <option value="1:10">1:10</option>
+                    <option value="1:20">1:20</option>
+                    <option value="1:25">1:25</option>
+                    <option value="1:50">1:50</option>
+                    <option value="1:100">1:100</option>
+                    <option value="1:250">1:250</option>
+                    <option value="1:500">1:500</option>
+                    <option value="1:750">1:750</option>
+                    <option value="1:1000">1:1.000</option>
+                    <option value="1:2000">1:2.000</option>
+                    <option value="1:5000">1:5.000</option>
+                    <option value="1:10000">1:10.000</option></select>
             <p>|</p>
-
+            <P>Được phát triển bởi team DUT WREF</P>
             <div id="mouse-position"></div>
         </div>
     </div>
 
 
+
     <div id="popup" class="ol-popup">
         <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-
         <div id="popup-content"></div>
     </div>
+
+
 
     <script type="module" src='./main.js'></script>
 </body>

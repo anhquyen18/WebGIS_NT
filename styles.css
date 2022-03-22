@@ -65,7 +65,7 @@ body {
     font-size: 15px;
     background-color: #ffffff;
     position: absolute;
-    top: 20.5%;
+    top: calc( var(--bottom-top-bar-height) + var(--top-bar-height) + 0.5%);
     right: 95px;
     width: 220px;
     height: 220px;
@@ -113,7 +113,6 @@ body {
 }
 
 h3 {
-    /* color: #0670a4; */
     font-size: 20px;
     text-align: center;
     display: block;
@@ -160,11 +159,11 @@ a:link {
 }
 
 .sidebar-button:hover {
-    opacity: 0.9;
+    opacity: 0.8;
 }
 
 #truy-van {
-    margin-left: 30px;
+    margin-left: 80px;
 }
 
 .cong-cu-bar {
@@ -172,6 +171,10 @@ a:link {
     align-items: center;
     justify-items: center;
     display: flex;
+}
+
+.cong-cu:hover {
+    opacity: 0.8;
 }
 
 #input {
@@ -257,6 +260,7 @@ a:link {
     margin: 3.5px 0 0px 1px;
     font-weight: 500;
     font-size: 15px;
+    color: rgb(65, 60, 60);
 }
 
 .content-item {
@@ -295,12 +299,13 @@ a:link {
     bottom: 0;
     background-color: #52a0f9;
     width: 100vw;
+    padding-left: 5px;
     /* height: 32px; */
     height: var(--bottom-bar-height);
     display: flex;
 }
 
-.bottom .bottom-bar-button {
+.container .bottom .bottom-bar-button {
     background-color: rgb(38, 111, 247);
     color: #ffffff;
     border-radius: 5px;
@@ -329,6 +334,11 @@ a:link {
     transition: opacity .2s;
 }
 
+#opacity-output {
+    align-items: center;
+    width: 40px;
+}
+
 #opacity-input::-webkit-slider-thumb {
     cursor: pointer;
 }
@@ -341,8 +351,8 @@ a:link {
 }
 
 #mouse-position {
-    position: relative;
-    left: 750px;
+    position: absolute;
+    right: 1%;
 }
 
 
@@ -454,4 +464,47 @@ a:link {
 
 .ol-popup-closer:after {
     content: "✖";
+}
+
+
+/*MEASURE TOOLS-------------------------------------------------------------------------------------------------------------*/
+
+.ol-tooltip {
+    position: relative;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    color: white;
+    padding: 4px 8px;
+    opacity: 0.7;
+    white-space: nowrap;
+    font-size: 12px;
+    cursor: default;
+    user-select: none;
+}
+
+.ol-tooltip-measure {
+    opacity: 1;
+    font-weight: bold;
+}
+
+.ol-tooltip-static {
+    background-color: #ffcc33;
+    color: black;
+    border: 1px solid white;
+}
+
+.ol-tooltip-measure:before,
+.ol-tooltip-static:before {
+    border-top: 6px solid rgba(0, 0, 0, 0.5);
+    border-right: 6px solid transparent;
+    border-left: 6px solid transparent;
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    margin-left: -7px;
+    left: 50%;
+}
+
+.ol-tooltip-static:before {
+    border-top-color: #ffcc33;
 }
