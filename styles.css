@@ -240,7 +240,7 @@ a:link {
     display: block;
     top: 0px;
     width: 15%;
-    height: 76%;
+    height: 80%;
     overflow-y: auto;
 }
 
@@ -312,15 +312,24 @@ a:link {
     color: rgb(65, 60, 60);
 }
 
+
+/* .left .plus-heading:hover {
+    color: var(--icon-button-background-color);
+} */
+
+.left .second-bar:hover,
+.left .second-bar:hover .plus-heading,
+.left .first-bar:hover,
+.left .first-bar:hover .plus-heading,
+.second-content-item:hover {
+    color: var(--icon-button-background-color);
+}
+
 .left .first-bar p {
     margin: 2px 0 0px 1px;
     font-weight: 500;
     font-size: 15px;
     color: rgb(65, 60, 60);
-}
-
-.second-content-item {
-    display: none;
 }
 
 .first-bar .fa-regular.fa-square-plus,
