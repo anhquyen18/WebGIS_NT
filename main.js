@@ -1,5 +1,5 @@
 mainMap();
-buttonEvents();
+pageEffects();
 
 function mainMap() {
     var format = 'image/png';
@@ -17,7 +17,7 @@ function mainMap() {
         visible: true,
         title: 'OSMStandard',
         maxZoom: 15
-    })
+    });
 
     var projection = new ol.proj.Projection({
         code: 'EPSG:4326',
@@ -115,7 +115,7 @@ function mainMap() {
         ],
         view: new ol.View({
             center: ol.proj.fromLonLat([109.196749, 12.238791]),
-            zoom: 10,
+            zoom: 9.5,
             // maxZoom: 20,
             //minZoom: 1,
             //rotation: 0.8,
@@ -157,7 +157,7 @@ function mainMap() {
     var viewResolution = view.getResolution();
     var source = hanhChinh.getSource();
 
-    /*map.on('singleclick', function(evt) {
+    map.on('singleclick', function(evt) {
         var url = source.getFeatureInfoUrl(
             evt.coordinate, viewResolution, view.getProjection(), {
                 'INFO_FORMAT': 'application/json',
@@ -189,7 +189,7 @@ function mainMap() {
                 }
             });
         }
-    });*/
+    });
 
     $("#hanhChinhCb").change(function() {
         if ($("#hanhChinhCb").is(":checked")) {
@@ -228,190 +228,12 @@ function mainMap() {
 
     // $('#draw-line-button').off('click');
 
-    $('#draw-line-button').on('click', function() {
-        let sketch;
-        let helpTooltipElement;
-        let helpTooltip;
-        let measureTooltipElement;
-        let measureTooltip;
-        const continuePolygonMsg = 'Click to continue drawing the polygon';
-        const continueLineMsg = 'Click to continue drawing the line';
-        const pointerMoveHandler = function(evt) {
-            if (evt.dragging) {
-                return;
-            }
-            /** @type {string} */
-            let helpMsg = 'Click to start drawing';
 
-            if (sketch) {
-                const geom = sketch.getGeometry();
-                if (geom instanceof ol.geom.Polygon) {
-                    helpMsg = continuePolygonMsg;
-                } else if (geom instanceof ol.geom.LineString) {
-                    helpMsg = continueLineMsg;
-                }
-            }
-            helpTooltipElement.innerHTML = helpMsg;
-            helpTooltip.setPosition(evt.coordinate);
-            helpTooltipElement.classList.remove('hidden');
-        };
-
-        // Measure Tools
-        map.on('pointermove', pointerMoveHandler);
-        map.getViewport().addEventListener('mouseout', function() {
-            helpTooltipElement.classList.add('hidden');
-        });
-
-        const typeSelect = document.getElementById('type');
-
-        let draw; // global so we can remove it later
-
-        /**
-         * Format length output.
-         * @param {LineString} line The line.
-         * @return {string} The formatted length.
-         */
-        const formatLength = function(line) {
-            const length = ol.sphere.getLength(line);
-            let output;
-            if (length > 100) {
-                output = Math.round((length / 1000) * 100) / 100 + ' ' + 'km';
-            } else {
-                output = Math.round(length * 100) / 100 + ' ' + 'm';
-            }
-            return output;
-        };
-
-        const formatArea = function(polygon) {
-            const area = ol.sphere.getArea(polygon);
-            let output;
-            if (area > 10000) {
-                output = Math.round((area / 1000000) * 100) / 100 + ' ' + 'km<sup>2</sup>';
-            } else {
-                output = Math.round(area * 100) / 100 + ' ' + 'm<sup>2</sup>';
-            }
-            return output;
-        };
-
-        function addInteraction() {
-            // const type = typeSelect.value == 'area' ? 'Polygon' : 'LineString';
-            var type;
-            if (typeSelect.value == 'area') {
-                type = 'Polygon';
-            } else if (typeSelect.value == 'length') {
-                type = 'LineString';
-            } else if (typeSelect.value == 'none') {
-
-            }
-
-            draw = new ol.interaction.Draw({
-                source: source,
-                type: type,
-                style: new ol.style.Style({
-                    fill: new ol.style.Fill({
-                        color: 'rgba(255, 255, 255, 0.2)',
-                    }),
-                    stroke: new ol.style.Stroke({
-                        color: 'rgba(0, 0, 0, 0.5)',
-                        lineDash: [10, 10],
-                        width: 2,
-                    }),
-                    image: new ol.style.Circle({
-                        radius: 5,
-                        stroke: new ol.style.Stroke({
-                            color: 'rgba(0, 0, 0, 0.7)',
-                        }),
-                        fill: new ol.style.Fill({
-                            color: 'rgba(255, 255, 255, 0.2)',
-                        }),
-                    }),
-                }),
-            });
-            map.addInteraction(draw);
-
-            createMeasureTooltip();
-            createHelpTooltip();
-
-            let listener;
-            draw.on('drawstart', function(evt) {
-                // set sketch
-                sketch = evt.feature;
-
-                /** @type {import("../src/ol/coordinate.js").Coordinate|undefined} */
-                let tooltipCoord = evt.coordinate;
-
-                listener = sketch.getGeometry().on('change', function(evt) {
-                    const geom = evt.target;
-                    let output;
-                    if (geom instanceof ol.geom.Polygon) {
-                        output = formatArea(geom);
-                        tooltipCoord = geom.getInteriorPoint().getCoordinates();
-                    } else if (geom instanceof ol.geom.LineString) {
-                        output = formatLength(geom);
-                        tooltipCoord = geom.getLastCoordinate();
-                    }
-                    measureTooltipElement.innerHTML = output;
-                    measureTooltip.setPosition(tooltipCoord);
-                });
-            });
-
-            draw.on('drawend', function() {
-                measureTooltipElement.className = 'ol-tooltip ol-tooltip-static';
-                measureTooltip.setOffset([0, -7]);
-                // unset sketch
-                sketch = null;
-                // unset tooltip so that a new one can be created
-                measureTooltipElement = null;
-                createMeasureTooltip();
-                ol.Observable.unByKey(listener);
-            });
-        }
-
-        function createHelpTooltip() {
-            if (helpTooltipElement) {
-                helpTooltipElement.parentNode.removeChild(helpTooltipElement);
-            }
-            helpTooltipElement = document.createElement('div');
-            helpTooltipElement.className = 'ol-tooltip hidden';
-            helpTooltip = new ol.Overlay({
-                element: helpTooltipElement,
-                offset: [15, 0],
-                positioning: 'center-left',
-            });
-            map.addOverlay(helpTooltip);
-        }
-
-        function createMeasureTooltip() {
-            if (measureTooltipElement) {
-                measureTooltipElement.parentNode.removeChild(measureTooltipElement);
-            }
-            measureTooltipElement = document.createElement('div');
-            measureTooltipElement.className = 'ol-tooltip ol-tooltip-measure';
-            measureTooltip = new ol.Overlay({
-                element: measureTooltipElement,
-                offset: [0, -15],
-                positioning: 'bottom-center',
-                stopEvent: false,
-                insertFirst: false,
-            });
-            map.addOverlay(measureTooltip);
-        }
-
-        /**
-         * Let user change the geometry type.
-         */
-        typeSelect.onchange = function() {
-            map.removeInteraction(draw);
-            addInteraction();
-        };
-
-        addInteraction();
-    });
 }
 
 
 //-------------------------------------------------------------------------
-function buttonEvents() {
+function pageEffects() {
     const mapButton = document.getElementById("map-button");
     const mapMenu = document.getElementById("map-menu");
     mapButton.addEventListener('click', () => {
@@ -426,15 +248,183 @@ function buttonEvents() {
         search.classList.toggle('active');
         inputSearch.focus();
     })
+
+
 }
 
 //-------------------------------------------------------------------------
 jQuery(document).ready(function($) {
-    $(".left .plus").click(function() {
-        // $(this).next().toggle();
-        $(this).next().toggleClass("plus-content--active");
-        $(this).toggleClass("plus--active");
-    });
+
+    // Danh Mục
+    // map data from json file
+    // var mapData;
+    (async() => {
+        var dataMap = [];
+        var xa = [];
+        var huyen = [];
+        var thanhPho = ["Nha Trang", "Cam Ranh"];
+        var thiXa = ["Ninh Hòa"];
+        // const HanhChinhObject = {
+        //     name: "",
+        //     parent: "",
+        //     pos_x: "",
+        //     pos_y: ""
+        // }
+        function HanhChinhLabel(name, parrent, pos_x, pos_y) {
+            this.name = name;
+            this.parrent = parrent;
+            this.pos_x = pos_x;
+            this.pox_y = pos_y;
+        }
+        var phuong_NhaTrang = [];
+        var xa_NhaTrang = [];
+        var phuong_CamRanh = [];
+        var xa_CamRanh = [];
+        var phuong_NinhHoa = [];
+        var xa_NinhHoa = [];
+        var thiTran_CamLam = [];
+        var xa_CamLam = [];
+        var thiTran_DienKhanh = [];
+        var xa_DienKhanh = [];
+        var thiTran_KhanhSon = [];
+        var xa_KhanhSon = [];
+        var thiTran_KhanhVinh = [];
+        var xa_KhanhVinh = [];
+        var thiTran_VanNinh = [];
+        var xa_VanNinh = [];
+
+
+        await fetch("./map_data.json")
+            .then(function(resp) {
+                return resp.json();
+            }).then(function(data) {
+                dataMap = data.rows;
+            });
+
+        var dataHuyen = [];
+        for (let i = 0; i < dataMap.length; i++) {
+            dataHuyen.push(dataMap[i].name_2);
+            if (dataMap[i].name_2 === "Nha Trang" && dataMap[i].type_3 === "Phường") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                phuong_NhaTrang.push(hc);
+            } else if (dataMap[i].name_2 === "Nha Trang" && dataMap[i].type_3 === "Xã") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                xa_NhaTrang.push(hc);
+            } else if (dataMap[i].name_2 === "Cam Ranh" && dataMap[i].type_3 === "Phường") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                phuong_CamRanh.push(hc);
+            } else if (dataMap[i].name_2 === "Cam Ranh" && dataMap[i].type_3 === "Xã") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                xa_CamRanh.push(hc);
+            } else if (dataMap[i].name_2 === "Ninh Hòa" && dataMap[i].type_3 === "Phường") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                phuong_NinhHoa.push(hc);
+            } else if (dataMap[i].name_2 === "Ninh Hòa" && dataMap[i].type_3 === "Xã") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                xa_NinhHoa.push(hc);
+            } else if (dataMap[i].name_2 === "Cam Lâm" && dataMap[i].type_3 === "Thị trấn") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                thiTran_CamLam.push(hc);
+            } else if (dataMap[i].name_2 === "Cam Lâm" && dataMap[i].type_3 === "Xã") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                xa_CamLam.push(hc);
+            } else if (dataMap[i].name_2 === "Diên Khánh" && dataMap[i].type_3 === "Thị trấn") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                thiTran_DienKhanh.push(hc);
+            } else if (dataMap[i].name_2 === "Diên Khánh" && dataMap[i].type_3 === "Xã") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                xa_DienKhanh.push(hc);
+            } else if (dataMap[i].name_2 === "Khánh Sơn" && dataMap[i].type_3 === "Thị trấn") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                thiTran_KhanhSon.push(hc);
+            } else if (dataMap[i].name_2 === "Khánh Sơn" && dataMap[i].type_3 === "Xã") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                xa_KhanhSon.push(hc);
+            } else if (dataMap[i].name_2 === "Khánh Vĩnh" && dataMap[i].type_3 === "Thị trấn") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                thiTran_KhanhVinh.push(hc);
+            } else if (dataMap[i].name_2 === "Khánh Vĩnh" && dataMap[i].type_3 === "Xã") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                xa_KhanhVinh.push(hc);
+            } else if (dataMap[i].name_2 === "Vạn Ninh" && dataMap[i].type_3 === "Thị trấn") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                thiTran_VanNinh.push(hc);
+            } else if (dataMap[i].name_2 === "Vạn Ninh" && dataMap[i].type_3 === "Xã") {
+                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
+                xa_VanNinh.push(hc);
+            }
+        }
+
+        //Lấy huyện không trùng nhau
+        function onlyUnique(value, index, self) {
+            return self.indexOf(value) === index;
+        }
+        var huyen = dataHuyen.filter(onlyUnique);
+        huyen.splice(2, 2);
+        huyen.splice(3, 1);
+
+
+
+        $('.left').html = '';
+        const hanhChinh = document.createElement('div');
+        const firstContentHC = document.createElement('div');
+        const secondContentThanhPho = document.createElement('div');
+
+        hanhChinh.classList.add('first-bar');
+        firstContentHC.classList.add('first-bar-content');
+
+
+        hanhChinh.innerHTML = `
+    <i class="fa-regular fa-square-plus"></i>
+    <i class="fa-regular fa-square-minus"></i>
+    <p class="plus-heading">Ranh giới hành chính</p>
+    `;
+        for (let i = 0; i < thanhPho.length; i++) {
+            firstContentHC.innerHTML += `
+    <div class="second-bar">
+    <i class="fa-regular fa-square-plus"></i>
+    <i class="fa-regular fa-square-minus"></i>
+    <p class="plus-heading">Tp ${thanhPho[i]}</p>
+</div>
+<div class="second-bar-content">
+</div>`;
+        }
+        for (let i = 0; i < thiXa.length; i++) {
+            firstContentHC.innerHTML += `
+    <div class="second-bar">
+    <i class="fa-regular fa-square-plus"></i>
+    <i class="fa-regular fa-square-minus"></i>
+    <p class="plus-heading">Thị xã ${thiXa[i]}</p>
+</div>
+<div class="second-bar-content">
+</div>`;
+        }
+        for (let i = 0; i < huyen.length; i++) {
+            firstContentHC.innerHTML += `
+    <div class="second-bar">
+    <i class="fa-regular fa-square-plus"></i>
+    <i class="fa-regular fa-square-minus"></i>
+    <p class="plus-heading">Huyện ${huyen[i]}</p>
+</div>
+<div class="second-bar-content">
+</div>`;
+        }
+
+
+        $('.left').append(hanhChinh);
+        $('.left').append(firstContentHC);
+
+        $(".left .first-bar").click(function() {
+            // $(this).next().toggle();
+            $(this).next().toggleClass("first-bar-content--active");
+            $(this).toggleClass("first-bar--active");
+        });
+
+        $(".left .first-bar-content .second-bar").click(function() {
+            $(this).next().toggleClass("second-bar-content--active");
+            $(this).toggleClass("second-bar--active");
+        });
+    })();
 
 
 
