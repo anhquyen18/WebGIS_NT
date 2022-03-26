@@ -18,7 +18,7 @@ function pageEffects() {
     })
 
 }
-
+var map;
 //-------------------------------------------------------------------------
 jQuery(document).ready(function($) {
 
@@ -35,7 +35,7 @@ jQuery(document).ready(function($) {
             this.name = name;
             this.parrent = parrent;
             this.pos_x = pos_x;
-            this.pox_y = pos_y;
+            this.pos_y = pos_y;
         }
         var phuong_NhaTrang = [];
         var xa_NhaTrang = [];
@@ -311,6 +311,7 @@ jQuery(document).ready(function($) {
         });
 
         //MAP --------------------------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------
         var format = 'image/png';
         var bounds = [108.66931915300006, 11.769107818000066,
             109.46916961700006, 12.868671416000073
@@ -336,7 +337,7 @@ jQuery(document).ready(function($) {
         /**
          * Create an overlay to anchor the popup to the map.
          */
-        var overlay = new ol.Overlay( /** @type {olx.OverlayOptions} */ ({
+        var overlayPopup = new ol.Overlay( /** @type {olx.OverlayOptions} */ ({
             element: container,
             autoPan: true,
             autoPanAnimation: {
@@ -348,7 +349,7 @@ jQuery(document).ready(function($) {
          * @return {boolean} Don't follow the href.
          */
         closer.onclick = function() {
-            overlay.setPosition(undefined);
+            overlayPopup.setPosition(undefined);
             closer.blur();
             return false;
         };
@@ -415,11 +416,11 @@ jQuery(document).ready(function($) {
             ],
         });
 
-        var map = new ol.Map({
+        map = new ol.Map({
             controls: ol.control.defaults().extend([fullScreen, mousePositionControl, overviewMapControl]),
             target: 'map',
             layers: [
-                openStreetMapStandard, raster, vectorMeasure, hanhChinhMap
+                openStreetMapStandard, hanhChinhMap
             ],
             view: new ol.View({
                 // center: ol.proj.fromLonLat([109.196749, 12.238791]),
@@ -429,7 +430,7 @@ jQuery(document).ready(function($) {
                 //rotation: 0.8,
                 projection: projection
             }),
-            overlays: [overlay]
+            overlays: [overlayPopup]
         });
 
         map.getView().fit(bounds, map.getSize());
@@ -450,27 +451,23 @@ jQuery(document).ready(function($) {
             return styles[feature.getGeometry().getType()];
         };
 
-        var vectorLayer = new ol.layer.Vector({
-            //source: vectorSource,
+        var vectorLayerPopup = new ol.layer.Vector({
             style: styleFunction
         });
-        map.addLayer(vectorLayer);
+        map.addLayer(vectorLayerPopup);
 
         // Tạo zoom slider mới
         var zoomSlider = new ol.control.ZoomSlider();
         map.addControl(zoomSlider);
 
-
-        // map.getView().fit(bounds, map.sgetSize());
         var view = map.getView();
         var viewResolution = view.getResolution();
         var source = hanhChinhMap.getSource();
-
-        map.on('singleclick', function(evt) {
+        var clickEvent = function(evt) {
             var url = source.getFeatureInfoUrl(
                 evt.coordinate, viewResolution, view.getProjection(), {
                     'INFO_FORMAT': 'application/json',
-                    'FEATURE_COUNT': 50
+                    'FEATURE_COUNT': 1
                 });
             if (url) {
                 $.ajax({
@@ -479,23 +476,58 @@ jQuery(document).ready(function($) {
                     contentType: "application/json; charset=utf-8",
                     dataType: 'json',
                     success: function(data, status) {
-
-                        var content = "<table>";
+                        console.log(data);
+                        var content = "";
+                        // var feature = data.features[0];
+                        // var featureAttr = feature.properties;
+                        // content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"];
                         for (var i = 0; i < data.features.length; i++) {
                             var feature = data.features[i];
                             var featureAttr = feature.properties;
-                            content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"]
-
+                            content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"];
                         }
-                        content += "</table>";
                         $("#popup-content").html(content);
-                        overlay.setPosition(evt.coordinate);
+
+                        overlayPopup.setPosition(evt.coordinate);
+                        // console.log(ol.control.MousePosition.getCoordinateFormat(), evt.coordinate);
 
                         var vectorSource = new ol.source.Vector({
-                            features: (new ol.format.GeoJSON()).readFeatures(data)
+                            features: (new ol.format.GeoJSON()).readFeatures(data.features[0])
                         });
 
-                        vectorLayer.setSource(vectorSource);
+                        vectorLayerPopup.setSource(vectorSource);
+                    }
+                });
+            }
+        };
+        map.on('singleclick', function(evt) {
+            var url = source.getFeatureInfoUrl(
+                evt.coordinate, viewResolution, view.getProjection(), {
+                    'INFO_FORMAT': 'application/json',
+                    'FEATURE_COUNT': 1
+                });
+            if (url) {
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    success: function(data, status) {
+                        try {
+                            var feature = data.features[0];
+                            var featureAttr = feature.properties;
+                            content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ", " + featureAttr["NAME_2"];
+                            $("#popup-content").html(content);
+                            overlayPopup.setPosition(evt.coordinate);
+
+                            var vectorSource = new ol.source.Vector({
+                                features: (new ol.format.GeoJSON()).readFeatures(data)
+                            });
+
+                            vectorLayerPopup.setSource(vectorSource);
+                        } catch (err) {
+
+                        }
                     }
                 });
             }
@@ -503,7 +535,6 @@ jQuery(document).ready(function($) {
 
         $("#hanhChinhCb").change(function() {
             if ($("#hanhChinhCb").is(":checked")) {
-
                 hanhChinhMap.setVisible(true);
             } else {
                 hanhChinhMap.setVisible(false);
@@ -534,35 +565,43 @@ jQuery(document).ready(function($) {
             map.getView().setZoom(map.getView().getZoom() + 1);
         });
         $('#zoom-out-button').click(function() {
-            map.getView().setCenter([dataMap[0].pos_x, dataMap[0].pos_y]);
             map.getView().setZoom(map.getView().getZoom() - 1);
         });
         $('#hand-button').click(function() {
             $('#draw-line-button').unbind();
-        })
+        });
+        $('#popup-button').click(function() {
+            map.addOverlay(overlayPopup);
+            vectorLayerPopup.setVisible(true);
+        });
+        $('#popdown-button').click(function() {
+            map.removeOverlay(overlayPopup);
+            vectorLayerPopup.setVisible(false);
+        });
 
+
+        // });
         // $('#draw-line-button').off('click');
 
 
         // Click Danh mục nhảy vị trí
-        // $(".second-content-item").each(function(){
-        //     $(this.)
-        // })
-        console.log(dataMap[0].pos_x, dataMap[0].pos_y, dataMap[0].name);
-        var sci = 0;
-        $(".second-content-item").each(function() {
-            try {
-                if ($(this).text().endsWith(phuong_NhaTrang[sci].name)) {
+        console.log(parseFloat(phuong_NhaTrang[0].pos_x), parseFloat(phuong_NhaTrang[0].pos_y), phuong_NhaTrang[0].name);
+        // var idxPos = 0; 
+        console.log(dataMap[0].pos_x);
+        console.log($(".second-content-item"));
+        $(".second-content-item").each(function(idx) {
+            for (let i = 0; i < dataMap.length; i++) {
+                if ($(this).text().endsWith(dataMap[i].name)) {
                     $(this).click(function() {
-                        // map.getView().setCenter([dataMap[0].pos_x, dataMap[0].pos_y]);
-                        // map.getView().setZoom(13);
-                    })
+                        var coord = [parseFloat(dataMap[i].pos_x), parseFloat(dataMap[i].pos_y)];
+                        map.getView().setCenter(coord);
+                        map.getView().setZoom(13);
+                    });
                 }
-                sci++;
-            } catch (err) {
-
             }
-        })
+        });
+
+
     })();
 
 

@@ -523,6 +523,10 @@ a:link {
     min-width: 180px;
 }
 
+.ol-popup.hidden {
+    display: none;
+}
+
 .ol-popup:after,
 .ol-popup:before {
     top: 100%;
@@ -534,19 +538,24 @@ a:link {
     pointer-events: none;
 }
 
-.ol-popup:after {
+
+/* Khi nào cải thiện được độ chính xác khi click chuột rồi bật lại */
+
+
+/* .ol-popup:after {
     border-top-color: white;
     border-width: 10px;
     left: 48px;
     margin-left: -10px;
-}
+} */
 
-.ol-popup:before {
+
+/* .ol-popup:before {
     border-top-color: #cccccc;
     border-width: 11px;
     left: 48px;
     margin-left: -11px;
-}
+} */
 
 .ol-popup-closer {
     text-decoration: none;
