@@ -173,6 +173,10 @@ a:link {
     display: flex;
 }
 
+.cong-cu:active {
+    transform: scale(0.98);
+}
+
 .cong-cu:hover {
     opacity: 0.8;
 }
@@ -231,6 +235,124 @@ a:link {
     font-size: 18px;
     color: #ffffff;
     margin: 5px 5px 10px -2px;
+}
+
+.measure-tool {
+    position: relative;
+}
+
+.form-inline {
+    display: none;
+}
+
+.form-inline.form-inline--show {
+    background-color: #378bf2;
+    color: #fff;
+    width: 310px;
+    text-align: left;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    padding: 5px;
+    display: block;
+    position: absolute;
+    z-index: 2;
+    margin-top: 5px;
+}
+
+.form-inline input:checked {
+    background-color: red;
+    color: red;
+}
+
+.form-inline:after {
+    background-color: red;
+    border-width: 10px;
+    position: absolute;
+    left: 48px;
+    margin-left: 124px;
+}
+
+.form-inline:before {
+    color: #378bf2;
+    content: '\25b2';
+    position: absolute;
+    left: 12px;
+    top: -18px;
+}
+
+
+/* MEASURE SLIDER CHECKBOX */
+
+.switch-container {
+    display: flex;
+    margin-left: -30px;
+    width: 300px;
+}
+
+.switch-container span {
+    font-weight: 500;
+    margin-top: -2px;
+    margin-left: -10px;
+}
+
+.switch {
+    visibility: hidden;
+}
+
+.label {
+    position: relative;
+    background-color: #fff;
+    border-radius: 50px;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0 15px 0;
+    width: 40px;
+    height: 20px;
+}
+
+.switch:checked+.label {
+    background-color: rgb(211, 225, 251);
+}
+
+.ball {
+    background: #378bf2;
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    align-items: center;
+    justify-content: center;
+    animation: slideOff 0.3s linear forwards;
+}
+
+.switch:checked+.label .ball {
+    animation: slideOn 0.3s linear forwards;
+}
+
+@keyframes slideOn {
+    0% {
+        transform: translateX(0) scale(1);
+    }
+    50% {
+        transform: translateX(10px) scale(1.2);
+    }
+    100% {
+        transform: translateX(20px) scale(1);
+    }
+}
+
+@keyframes slideOff {
+    0% {
+        transform: translateX(20px) scale(1);
+    }
+    50% {
+        transform: translateX(10px) scale(1.2);
+    }
+    100% {
+        transform: translateX(0) scale(1);
+    }
 }
 
 
@@ -393,7 +515,6 @@ a:link {
     background-color: #52a0f9;
     width: 100vw;
     padding-left: 5px;
-    /* height: 32px; */
     height: var(--bottom-bar-height);
     display: flex;
 }
@@ -459,7 +580,6 @@ a:link {
     width: 15px;
     height: 200px;
     padding: 0;
-    /*box-shadow: 0 0 5px rgb(255, 69, 0);*/
     border-radius: 7.5px;
 }
 
@@ -520,11 +640,8 @@ a:link {
     border: 1px solid #cccccc;
     bottom: 12px;
     left: -50px;
-    min-width: 180px;
-}
-
-.ol-popup.hidden {
-    display: none;
+    min-width: 200px;
+    max-width: 250px;
 }
 
 .ol-popup:after,

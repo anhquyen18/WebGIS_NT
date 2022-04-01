@@ -46,22 +46,39 @@
                 <button class="cong-cu" id="zoom-out-button" title="Thu nhỏ">
                     <i class="fa-solid fa-magnifying-glass-minus"></i>
                 </button>
-
                 <button class="cong-cu" id="hand-button">
                     <i class="fa-solid fa-hand" title="Con trỏ"></i>
                 </button>
-                <button class="cong-cu" id="draw-area-button">
-                    <i class="fa-solid fa-draw-polygon" title="Đo diện tích"></i>
-                </button>
-                <button class="cong-cu" id="draw-line-button">
-                    <i class="fa-solid fa-pen-ruler" title="Đo đoạn thẳng"></i>
-                </button>
+                <div class="measure-tool">
+                    <button class="cong-cu" id="measure-button">
+                        <i class="fa-solid fa-pen-ruler" title="Đo đạc"></i>
+                    </button>
+                    <form class="form-inline">
+                        <div class="switch-container">
+                            <input type="checkbox" id="measure-switch" class="switch">
+                            <label for="measure-switch" class="label">
+                                <div class="ball"></div>
+                            </label>
+                            <span>Bật/tắt công cụ đo</span>
+                        </div>
+
+                        <label for="type">Loại công cụ đo: &nbsp;</label>
+                        <select id="type">
+                              <option value="LineString">Đoạn thẳng (LineString)</option>
+                              <option value="Polygon">Vùng (Polygon)</option>
+                            </select><br>
+                        <label for="segments">- Hiện độ dài các đoạn thẳng:&nbsp;</label>
+                        <input type="checkbox" id="segments" checked /> <br>
+                        <label for="clear">- Xóa các đo đạc cũ:&nbsp;</label>
+                        <input type="checkbox" id="clear" checked />
+                    </form>
+                </div>
+
                 <button class="cong-cu" id="popup-button">
                     <i class="fa-solid fa-circle-exclamation" title="Hiện Popup"></i>
                 </button>
                 <button class="cong-cu" id="popdown-button">
                     <i class="fa-solid fa-ban" title="Ẩn Popup"></i>
-                    <!-- <i class="fa-solid fa-ban"></i> -->
                 </button>
                 <div class="search-button">
                     <button class="cong-cu" id="search-button">
@@ -69,12 +86,11 @@
                     </button>
                     <input id="input" type="text" class="input" placeholder="Tìm kiếm...">
                 </div>
+                </button>
             </div>
         </div>
 
         <div class="left">
-
-
 
         </div>
 

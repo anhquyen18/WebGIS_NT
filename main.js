@@ -176,7 +176,7 @@ jQuery(document).ready(function($) {
     <div class="second-bar">
     <i class="fa-regular fa-square-plus"></i>
     <i class="fa-regular fa-square-minus"></i>
-    <p class="plus-heading">Tp ${thanhPho[i]}</p>
+    <p class="plus-heading">Thành phố ${thanhPho[i]}</p>
 </div>`;
         };
         for (let i = 0; i < thiXa.length; i++) {
@@ -283,9 +283,9 @@ jQuery(document).ready(function($) {
         $(".first-bar:nth(1)").after(firstContentSLD);
 
         $('.plus-heading').each(function() {
-            if ($(this).text() === "Tp Nha Trang")
+            if ($(this).text() === "Thành phố Nha Trang")
                 $(this).parent().after(secondContentNhaTrang);
-            else if ($(this).text() === "Tp Cam Ranh")
+            else if ($(this).text() === "Thành phố Cam Ranh")
                 $(this).parent().after(secondContentCamRanh);
             else if ($(this).text() === "Thị xã Ninh Hòa")
                 $(this).parent().after(secondContentNinhHoa);
@@ -317,19 +317,24 @@ jQuery(document).ready(function($) {
             109.46916961700006, 12.868671416000073
         ];
 
+        // POPUP
         var container = document.getElementById('popup');
         var content = document.getElementById('popup-content');
         var closer = document.getElementById('popup-closer');
+        // MEASURE TOOLS
+        const typeSelect = document.getElementById('type');
+        const showSegments = document.getElementById('segments');
+        const clearPrevious = document.getElementById('clear');
 
         var openStreetMapStandard = new ol.layer.Tile({
             source: new ol.source.OSM(),
             visible: true,
-            title: 'OSMStandard',
-            maxZoom: 15
+            title: 'OSMStandard'
         });
 
         var projection = new ol.proj.Projection({
             code: 'EPSG:4326',
+            // code: 'EPSG:3857',
             units: 'degrees',
             axisOrientation: 'neu',
         });
@@ -354,29 +359,212 @@ jQuery(document).ready(function($) {
             return false;
         };
 
-        // Measure tools
-        const raster = new ol.layer.Tile({
-            source: new ol.source.OSM(),
-        });
-        const sourceMeasure = new ol.source.Vector();
-
-        const vectorMeasure = new ol.layer.Vector({
-            source: sourceMeasure,
-            style: new ol.style.Style({
+        // MEASURE TOOLS STYLE
+        const measureStyle = new ol.style.Style({
+            // Đa giác lúc đo vùng
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.2)',
+            }),
+            // Đường thẳng
+            stroke: new ol.style.Stroke({
+                // color: 'rgba(0, 0, 0, 0.5)',
+                color: '#52a0f9',
+                lineDash: [10, 10],
+                width: 2,
+            }),
+            // Đường tròn con trỏ chuột lúc đo
+            image: new ol.style.Circle({
+                radius: 5,
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(0, 0, 0, 0.7)',
+                }),
                 fill: new ol.style.Fill({
                     color: 'rgba(255, 255, 255, 0.2)',
                 }),
-                stroke: new ol.style.Stroke({
-                    color: '#ffcc33',
-                    width: 2,
+            }),
+        });
+
+        const measureLabelStyle = new ol.style.Style({
+            // Màu chữ km tổng
+            text: new ol.style.Text({
+                font: '14px Calibri,sans-serif',
+                fill: new ol.style.Fill({
+                    color: 'rgba(255, 255, 255, 1)',
+                    // color: 'rgba(24,23, 225, 1)'
                 }),
-                image: new ol.style.Circle({
-                    radius: 7,
-                    fill: new ol.style.Fill({
-                        color: '#ffcc33',
-                    }),
+                backgroundFill: new ol.style.Fill({
+                    color: 'rgba(0, 0, 0, 0.7)',
+                }),
+                padding: [3, 3, 3, 3],
+                textBaseline: 'bottom',
+                offsetY: -15,
+            }),
+            // Tam giác cuối line
+            image: new ol.style.RegularShape({
+                radius: 8,
+                points: 3,
+                angle: Math.PI,
+                displacement: [0, 10],
+                fill: new ol.style.Fill({
+                    color: 'rgba(0, 0, 0, 0.7)',
                 }),
             }),
+        });
+
+        const measureTipStyle = new ol.style.Style({
+            // Nhấn chuột trái để bắt đầu vẽ
+            text: new ol.style.Text({
+                font: '12px Calibri,sans-serif',
+                fill: new ol.style.Fill({
+                    color: 'rgba(255, 255, 255, 1)',
+                }),
+                backgroundFill: new ol.style.Fill({
+                    color: 'rgba(0, 0, 0, 0.4)',
+                }),
+                padding: [2, 2, 2, 2],
+                textAlign: 'left',
+                offsetX: 15,
+            }),
+        });
+
+        const measureModifyStyle = new ol.style.Style({
+            // Kéo để tùy chỉnh
+            image: new ol.style.Circle({
+                radius: 5,
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(0, 0, 0, 0.7)',
+                }),
+                fill: new ol.style.Fill({
+                    // color: 'rgba(0, 0, 0, 0.4)',
+                    color: '#52a0f9',
+
+                }),
+            }),
+            text: new ol.style.Text({
+                text: 'Kéo để tùy chỉnh',
+                font: '12px Calibri,sans-serif',
+                fill: new ol.style.Fill({
+                    color: 'rgba(255, 255, 255, 1)',
+                }),
+                backgroundFill: new ol.style.Fill({
+                    color: 'rgba(0, 0, 0, 0.7)',
+                }),
+                padding: [2, 2, 2, 2],
+                textAlign: 'left',
+                offsetX: 15,
+            }),
+        });
+
+        const measureSegmentStyle = new ol.style.Style({
+            // Số km mỗi đoạn nhỏ
+            text: new ol.style.Text({
+                font: '12px Calibri,sans-serif',
+                fill: new ol.style.Fill({
+                    color: 'rgba(255, 255, 255, 1)',
+                }),
+                backgroundFill: new ol.style.Fill({
+                    color: 'rgba(0, 0, 0, 0.4)',
+                }),
+                padding: [2, 2, 2, 2],
+                textBaseline: 'bottom',
+                offsetY: -12
+            }),
+            // Tam giác trỏ xuống mỗi line nhỏ
+            image: new ol.style.RegularShape({
+                radius: 6,
+                points: 3,
+                angle: Math.PI,
+                displacement: [0, 8],
+                fill: new ol.style.Fill({
+                    color: 'rgba(0, 0, 0, 0.4)',
+                }),
+            }),
+        });
+
+        const measureSegmentStyles = [measureSegmentStyle];
+
+        const measureFormatLength = function(line) {
+            const length = ol.sphere.getLength(line);
+            let output;
+            if (length > 100) {
+                output = Math.round((length / 1000) * 100) / 100 + ' km';
+            } else {
+                output = Math.round(length * 100) / 100 + ' m';
+            }
+            return output;
+        };
+        const measureFormatArea = function(polygon) {
+            const area = ol.sphere.getArea(polygon);
+            let output;
+            if (area > 10000) {
+                output = Math.round((area / 1000000) * 100) / 100 + ' km\xB2';
+            } else {
+                output = Math.round(area * 100) / 100 + ' m\xB2';
+            }
+            return output;
+        };
+        const measureRaster = new ol.layer.Tile({
+            source: new ol.source.OSM(),
+        });
+
+        const measureSource = new ol.source.Vector();
+
+        const measureModify = new ol.interaction.Modify({ source: measureSource, style: measureModifyStyle });
+        let tipPoint;
+
+        function measureStyleFunction(feature, segments, drawType, tip) {
+            const styles = [measureStyle];
+            const geometry = feature.getGeometry();
+            const type = geometry.getType();
+            let point, label, line;
+            if (!drawType || drawType === type) {
+                if (type === 'Polygon') {
+                    point = geometry.getInteriorPoint();
+                    label = measureFormatArea(geometry);
+                    line = new ol.geom.LineString(geometry.getCoordinates()[0]);
+                } else if (type === 'LineString') {
+                    point = new ol.geom.Point(geometry.getLastCoordinate());
+                    label = measureFormatLength(geometry);
+                    line = geometry;
+                }
+            }
+            if (segments && line) {
+                let count = 0;
+                line.forEachSegment(function(a, b) {
+                    const segment = new ol.geom.LineString([a, b]);
+                    const label = measureFormatLength(segment);
+                    if (measureSegmentStyles.length - 1 < count) {
+                        measureSegmentStyles.push(measureSegmentStyle.clone());
+                    }
+                    const segmentPoint = new ol.geom.Point(segment.getCoordinateAt(0.5));
+                    measureSegmentStyles[count].setGeometry(segmentPoint);
+                    measureSegmentStyles[count].getText().setText(label);
+                    styles.push(measureSegmentStyles[count]);
+                    count++;
+                });
+            }
+            if (label) {
+                measureLabelStyle.setGeometry(point);
+                measureLabelStyle.getText().setText(label);
+                styles.push(measureLabelStyle);
+            }
+            if (
+                tip &&
+                type === 'Point' &&
+                !measureModify.getOverlay().getSource().getFeatures().length
+            ) {
+                tipPoint = geometry;
+                measureTipStyle.getText().setText(tip);
+                styles.push(measureTipStyle);
+            }
+            return styles;
+        }
+
+        const measureVector = new ol.layer.Vector({
+            source: measureSource,
+            style: function(feature) {
+                return measureStyleFunction(feature, showSegments.checked);
+            },
         });
 
         // Mouse Position
@@ -389,7 +577,6 @@ jQuery(document).ready(function($) {
             target: document.getElementById('mouse-position'),
         });
 
-        //Measure Tools
 
         // Full Screen
         var fullScreen = new ol.control.FullScreen();
@@ -407,6 +594,16 @@ jQuery(document).ready(function($) {
             })
         });
 
+        var googleBaseMap = new ol.layer.Tile({
+            title: "Google Sattelite",
+            type: "base",
+            visible: true,
+            opacity: 1,
+            source: new ol.source.XYZ({
+                url: "https://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga",
+            }),
+        });
+
         //OverViewMap
         const overviewMapControl = new ol.control.OverviewMap({
             layers: [
@@ -420,23 +617,71 @@ jQuery(document).ready(function($) {
             controls: ol.control.defaults().extend([fullScreen, mousePositionControl, overviewMapControl]),
             target: 'map',
             layers: [
-                openStreetMapStandard, hanhChinhMap
+                // openStreetMapStandard, hanhChinhMap
+                measureRaster, googleBaseMap, hanhChinhMap, measureVector
             ],
             view: new ol.View({
-                // center: ol.proj.fromLonLat([109.196749, 12.238791]),
-                // zoom: 9.5,
+                center: ol.proj.fromLonLat([109.196749, 12.238791]),
+                zoom: 9.5,
                 // maxZoom: 20,
                 //minZoom: 1,
                 //rotation: 0.8,
-                projection: projection
+                // projection: projection
             }),
             overlays: [overlayPopup]
         });
 
-        map.getView().fit(bounds, map.getSize());
-        // addInteraction();
+        // map.getView().fit(bounds, map.getSize());
+        // console.log(map.getView().getProjection());
+        // Measure Tools
+        map.addInteraction(measureModify);
+        let draw;
+
+        function measureAddInteraction() {
+
+            const drawType = typeSelect.value;
+            const activeTip =
+                'Nhấn chuột trái để tiếp tục vẽ ' +
+                (drawType === 'Polygon' ? 'vùng' : 'đoạn thẳng');
+            const idleTip = 'Nhấn chuột trái để bắt đầu vẽ';
+            let tip = idleTip;
+            draw = new ol.interaction.Draw({
+                source: measureSource,
+                type: drawType,
+                style: function(feature) {
+                    return measureStyleFunction(feature, showSegments.checked, drawType, tip);
+                },
+            });
+            draw.on('drawstart', function() {
+                if (clearPrevious.checked) {
+                    measureSource.clear();
+                }
+                measureModify.setActive(false);
+                tip = activeTip;
+            });
+            draw.on('drawend', function() {
+                // measureModifyStyle.setGeometry(tipPoint);
+                measureModify.setActive(true);
+                map.once('pointermove', function() {
+                    measureModifyStyle.setGeometry();
+                });
+                tip = idleTip;
+            });
+            measureModify.setActive(true);
+            map.addInteraction(draw);
+        }
 
 
+        measureAddInteraction();
+        typeSelect.onchange = function() {
+            map.removeInteraction(draw);
+            measureAddInteraction();
+        };
+        showSegments.onchange = function() {
+            measureVector.changed();
+            draw.getOverlay().changed();
+        };
+        map.removeInteraction(draw);
         // Hightlight map when click style
         var styles = {
             'MultiPolygon': new ol.style.Style({
@@ -456,50 +701,16 @@ jQuery(document).ready(function($) {
         });
         map.addLayer(vectorLayerPopup);
 
-        // Tạo zoom slider mới
+
+
+        // Tạo zoom slider mới 
         var zoomSlider = new ol.control.ZoomSlider();
         map.addControl(zoomSlider);
 
         var view = map.getView();
         var viewResolution = view.getResolution();
         var source = hanhChinhMap.getSource();
-        var clickEvent = function(evt) {
-            var url = source.getFeatureInfoUrl(
-                evt.coordinate, viewResolution, view.getProjection(), {
-                    'INFO_FORMAT': 'application/json',
-                    'FEATURE_COUNT': 1
-                });
-            if (url) {
-                $.ajax({
-                    type: "GET",
-                    url: url,
-                    contentType: "application/json; charset=utf-8",
-                    dataType: 'json',
-                    success: function(data, status) {
-                        console.log(data);
-                        var content = "";
-                        // var feature = data.features[0];
-                        // var featureAttr = feature.properties;
-                        // content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"];
-                        for (var i = 0; i < data.features.length; i++) {
-                            var feature = data.features[i];
-                            var featureAttr = feature.properties;
-                            content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"];
-                        }
-                        $("#popup-content").html(content);
 
-                        overlayPopup.setPosition(evt.coordinate);
-                        // console.log(ol.control.MousePosition.getCoordinateFormat(), evt.coordinate);
-
-                        var vectorSource = new ol.source.Vector({
-                            features: (new ol.format.GeoJSON()).readFeatures(data.features[0])
-                        });
-
-                        vectorLayerPopup.setSource(vectorSource);
-                    }
-                });
-            }
-        };
         map.on('singleclick', function(evt) {
             var url = source.getFeatureInfoUrl(
                 evt.coordinate, viewResolution, view.getProjection(), {
@@ -516,7 +727,14 @@ jQuery(document).ready(function($) {
                         try {
                             var feature = data.features[0];
                             var featureAttr = feature.properties;
-                            content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ", " + featureAttr["NAME_2"];
+                            if (featureAttr["NAME_2"] === "Nha Trang" || featureAttr["NAME_2"] === "Cam Ranh") {
+                                content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Thành phố " + featureAttr["NAME_2"];
+                            } else if (featureAttr["NAME_2"] === "Ninh Hòa") {
+                                content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Thị xã " + featureAttr["NAME_2"];
+                            } else {
+                                content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Huyện " + featureAttr["NAME_2"];
+                            }
+
                             $("#popup-content").html(content);
                             overlayPopup.setPosition(evt.coordinate);
 
@@ -559,7 +777,6 @@ jQuery(document).ready(function($) {
         //BUTTON BAR-------------------------------------------------------------------------
         $('#home-button').click(() => {
             map.getView().fit(bounds, map.getSize());
-
         })
         $('#zoom-in-button').click(function() {
             map.getView().setZoom(map.getView().getZoom() + 1);
@@ -568,7 +785,10 @@ jQuery(document).ready(function($) {
             map.getView().setZoom(map.getView().getZoom() - 1);
         });
         $('#hand-button').click(function() {
-            $('#draw-line-button').unbind();
+            map.removeOverlay(overlayPopup);
+            vectorLayerPopup.setVisible(false);
+            $('#measure-switch').prop('checked', false);
+            map.removeInteraction(draw);
         });
         $('#popup-button').click(function() {
             map.addOverlay(overlayPopup);
@@ -577,18 +797,24 @@ jQuery(document).ready(function($) {
         $('#popdown-button').click(function() {
             map.removeOverlay(overlayPopup);
             vectorLayerPopup.setVisible(false);
+            $('#measure-switch').prop('checked', false);
+            map.removeInteraction(draw);
+        });
+        $('#measure-button').on('click', function() {
+            $('.form-inline').toggleClass('form-inline--show');
+        });
+        $('#measure-switch').click(function() {
+            if ($('#measure-switch').is(':checked')) {
+                map.addInteraction(draw);
+                console.log('on');
+            } else {
+                map.removeInteraction(draw);
+            }
         });
 
 
-        // });
-        // $('#draw-line-button').off('click');
-
 
         // Click Danh mục nhảy vị trí
-        console.log(parseFloat(phuong_NhaTrang[0].pos_x), parseFloat(phuong_NhaTrang[0].pos_y), phuong_NhaTrang[0].name);
-        // var idxPos = 0; 
-        console.log(dataMap[0].pos_x);
-        console.log($(".second-content-item"));
         $(".second-content-item").each(function(idx) {
             for (let i = 0; i < dataMap.length; i++) {
                 if ($(this).text().endsWith(dataMap[i].name)) {
