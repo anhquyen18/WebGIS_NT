@@ -181,7 +181,7 @@ a:link {
     opacity: 0.8;
 }
 
-#input {
+#search-input {
     background-color: transparent;
     border: 0;
     font-size: 13px;
@@ -196,7 +196,7 @@ a:link {
     margin: -2px 0px 5px 5px;
 }
 
-.search-button.active #input {
+.search-button.active #search-input {
     background-color: #fff;
     border: 0;
     font-size: 13px;
@@ -206,10 +206,79 @@ a:link {
     border-right: 1px solid #ffffff;
     border-radius: 5px 5px 5px 5px;
     transition: width 0.5s ease;
+    position: relative;
 }
 
-.search-button #input {
+.search-tool {
+    position: relative;
+}
+
+.search-button #search-input {
     outline: none;
+}
+
+.address {
+    display: none;
+}
+
+.address.active {
+    display: block;
+}
+
+.address-list {
+    background-color: #378bf2;
+    list-style-type: none;
+    width: 200px;
+    position: absolute;
+    top: 20px;
+    left: 45px;
+    border: 1px solid #ffffff;
+    border-radius: 5px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 3;
+}
+
+
+/* .address-list:before {
+    color: #378bf2;
+    content: '\25b2';
+    position: absolute;
+    left: 12px;
+    top: -18px;
+}
+
+.address-list:after {
+    color: #378bf2;
+    content: '\25b2';
+    position: absolute;
+    left: 12px;
+    top: -18px;
+} */
+
+.address-list li {
+    color: #ffffff;
+    font-size: 15px;
+    display: flex;
+    padding: 2px;
+    cursor: pointer;
+    margin-left: -25px;
+}
+
+.adress-list li:not(:last-of-type) {
+    border-bottom: 1px solid #eee;
+}
+
+.address-list li.hide {
+    display: none;
+}
+
+.address-list li:hover {
+    color: black;
+}
+
+.address-list h3 {
+    color: rgb(231, 231, 231);
 }
 
 .bottom-top .cong-cu-bar p {
@@ -257,19 +326,6 @@ a:link {
     position: absolute;
     z-index: 2;
     margin-top: 5px;
-}
-
-.form-inline input:checked {
-    background-color: red;
-    color: red;
-}
-
-.form-inline:after {
-    background-color: red;
-    border-width: 10px;
-    position: absolute;
-    left: 48px;
-    margin-left: 124px;
 }
 
 .form-inline:before {
@@ -515,6 +571,7 @@ a:link {
     background-color: #52a0f9;
     width: 100vw;
     padding-left: 5px;
+    /* height: 32px; */
     height: var(--bottom-bar-height);
     display: flex;
 }
@@ -580,6 +637,7 @@ a:link {
     width: 15px;
     height: 200px;
     padding: 0;
+    /*box-shadow: 0 0 5px rgb(255, 69, 0);*/
     border-radius: 7.5px;
 }
 

@@ -25,8 +25,6 @@
             <nav class="hyperlink-container">
                 <a href="">Trang Chủ</a>
                 <a href="">Giới Thiệu</a>
-                <!-- <a href="">Quản Lý</a>
-                <a href="">Tin Tức</a> -->
                 <a href="">Liên Hệ</a>
             </nav>
         </div>
@@ -73,20 +71,24 @@
                         <input type="checkbox" id="clear" checked />
                     </form>
                 </div>
-
                 <button class="cong-cu" id="popup-button">
                     <i class="fa-solid fa-circle-exclamation" title="Hiện Popup"></i>
                 </button>
                 <button class="cong-cu" id="popdown-button">
                     <i class="fa-solid fa-ban" title="Ẩn Popup"></i>
                 </button>
-                <div class="search-button">
-                    <button class="cong-cu" id="search-button">
-                        <i class="fa-solid fa-magnifying-glass" title="Tìm kiếm"></i>
-                    </button>
-                    <input id="input" type="text" class="input" placeholder="Tìm kiếm...">
+                <div class="search-tool">
+                    <div class="search-button">
+                        <button class="cong-cu" id="search-button">
+                            <i class="fa-solid fa-magnifying-glass" title="Tìm kiếm"></i>
+                        </button>
+                        <input id="search-input" type="text" class="search-input" placeholder="Tìm kiếm địa chính theo tên...">
+                    </div>
+                    <div class="address">
+                        <ul id="search-result" class="address-list">
+                        </ul>
+                    </div>
                 </div>
-                </button>
             </div>
         </div>
 
@@ -111,7 +113,6 @@
                         <input type="checkbox" id="hanhChinhCb" checked>
                         <label for="hanhChinhCb">Bản đồ địa chính </label>
                     </div>
-
                 </div>
 
                 <div class="map-menu__heading">
@@ -159,8 +160,6 @@
             <div id="mouse-position"></div>
         </div>
     </div>
-
-
 
     <div id="popup" class="ol-popup">
         <a href="#" id="popup-closer" class="ol-popup-closer"></a>

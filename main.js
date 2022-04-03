@@ -10,15 +10,19 @@ function pageEffects() {
 
     const search = document.querySelector('.search-button');
     const searchBt = document.querySelector('#search-button');
-    const inputSearch = document.querySelector('#input');
+    const searchInput = document.querySelector('#search-input');
+    const searchResult = document.querySelector('.address');
 
     searchBt.addEventListener('click', () => {
         search.classList.toggle('active');
-        inputSearch.focus();
-    })
+        searchResult.classList.remove('active');
+    });
+    searchInput.addEventListener('focus', () => {
+        searchResult.classList.add('active');
+    });
 
 }
-var map;
+
 //-------------------------------------------------------------------------
 jQuery(document).ready(function($) {
 
@@ -364,11 +368,12 @@ jQuery(document).ready(function($) {
             // Đa giác lúc đo vùng
             fill: new ol.style.Fill({
                 color: 'rgba(255, 255, 255, 0.2)',
+                // color: 'rgba(240, 128, 128, 1)',
             }),
             // Đường thẳng
             stroke: new ol.style.Stroke({
                 // color: 'rgba(0, 0, 0, 0.5)',
-                color: '#52a0f9',
+                color: 'rgba(240, 128, 128, 1)',
                 lineDash: [10, 10],
                 width: 2,
             }),
@@ -407,6 +412,7 @@ jQuery(document).ready(function($) {
                 displacement: [0, 10],
                 fill: new ol.style.Fill({
                     color: 'rgba(0, 0, 0, 0.7)',
+                    // color: 'rgba(212, 2, 2, 0.7)'
                 }),
             }),
         });
@@ -435,8 +441,8 @@ jQuery(document).ready(function($) {
                     color: 'rgba(0, 0, 0, 0.7)',
                 }),
                 fill: new ol.style.Fill({
-                    // color: 'rgba(0, 0, 0, 0.4)',
-                    color: '#52a0f9',
+                    color: 'rgba(0, 0, 0, 0.4)',
+                    color: 'rgba(240, 128, 128, 1)',
 
                 }),
             }),
@@ -571,6 +577,7 @@ jQuery(document).ready(function($) {
         const mousePositionControl = new ol.control.MousePosition({
             coordinateFormat: ol.coordinate.createStringXY(4),
             projection: 'EPSG:4326',
+            // projection: 'EPSG:3857',
             // comment the following two lines to have the mouse position
             // be placed within the map.
             className: 'custom-mouse-position',
@@ -613,7 +620,7 @@ jQuery(document).ready(function($) {
             ],
         });
 
-        map = new ol.Map({
+        var map = new ol.Map({
             controls: ol.control.defaults().extend([fullScreen, mousePositionControl, overviewMapControl]),
             target: 'map',
             layers: [
@@ -621,17 +628,17 @@ jQuery(document).ready(function($) {
                 measureRaster, googleBaseMap, hanhChinhMap, measureVector
             ],
             view: new ol.View({
-                center: ol.proj.fromLonLat([109.196749, 12.238791]),
-                zoom: 9.5,
+                // center: ol.proj.fromLonLat([109.196749, 12.238791]),
+                // zoom: 9.5,
                 // maxZoom: 20,
                 //minZoom: 1,
                 //rotation: 0.8,
-                // projection: projection
+                projection: projection
             }),
             overlays: [overlayPopup]
         });
 
-        // map.getView().fit(bounds, map.getSize());
+        map.getView().fit(bounds, map.getSize());
         // console.log(map.getView().getProjection());
         // Measure Tools
         map.addInteraction(measureModify);
@@ -797,8 +804,6 @@ jQuery(document).ready(function($) {
         $('#popdown-button').click(function() {
             map.removeOverlay(overlayPopup);
             vectorLayerPopup.setVisible(false);
-            $('#measure-switch').prop('checked', false);
-            map.removeInteraction(draw);
         });
         $('#measure-button').on('click', function() {
             $('.form-inline').toggleClass('form-inline--show');
@@ -812,10 +817,29 @@ jQuery(document).ready(function($) {
             }
         });
 
-
+        const listItems = [];
+        // addElementToSearchListBig(thanhPho, 'Thành phố', listItems);
+        // addElementToSearchListBig(thiXa, 'Thị xã', listItems);
+        // addElementToSearchListBig(huyen, 'Huyện', listItems);
+        addElementToSearchListSmall(thiTran_VanNinh, 'Thị trấn', listItems);
+        addElementToSearchListSmall(thiTran_CamLam, 'Thị trấn', listItems);
+        addElementToSearchListSmall(thiTran_KhanhVinh, 'Thị trấn', listItems);
+        addElementToSearchListSmall(thiTran_DienKhanh, 'Thị trấn', listItems);
+        addElementToSearchListSmall(thiTran_KhanhSon, 'Thị trấn', listItems);
+        addElementToSearchListSmall(phuong_NhaTrang, 'Phường', listItems);
+        addElementToSearchListSmall(phuong_CamRanh, 'Phường', listItems);
+        addElementToSearchListSmall(phuong_NinhHoa, 'Phường', listItems);
+        addElementToSearchListSmall(xa_NhaTrang, 'Xã', listItems);
+        addElementToSearchListSmall(xa_CamRanh, 'Xã', listItems);
+        addElementToSearchListSmall(xa_NinhHoa, 'Xã', listItems);
+        addElementToSearchListSmall(xa_VanNinh, 'Xã', listItems);
+        addElementToSearchListSmall(xa_CamLam, 'Xã', listItems);
+        addElementToSearchListSmall(xa_KhanhVinh, 'Xã', listItems);
+        addElementToSearchListSmall(xa_DienKhanh, 'Xã', listItems);
+        addElementToSearchListSmall(xa_KhanhSon, 'Xã', listItems);
 
         // Click Danh mục nhảy vị trí
-        $(".second-content-item").each(function(idx) {
+        $(".second-content-item").each(function() {
             for (let i = 0; i < dataMap.length; i++) {
                 if ($(this).text().endsWith(dataMap[i].name)) {
                     $(this).click(function() {
@@ -827,8 +851,56 @@ jQuery(document).ready(function($) {
             }
         });
 
+        // Tìm kiếm theo tên
+        $('#search-input').on('input', function(e) {
+                filterData(e.target.value, listItems)
+            })
+            // Click kết quả search nhảy vị trí
+        $(".address-list li").each(function() {
+            for (let i = 0; i < dataMap.length; i++) {
+                if ($(this).text().endsWith(dataMap[i].name)) {
+                    $(this).click(function() {
+                        console.log($(this).text());
+                        var coord = [parseFloat(dataMap[i].pos_x), parseFloat(dataMap[i].pos_y)];
+                        map.getView().setCenter(coord);
+                        map.getView().setZoom(13);
+                        $('.address').removeClass('active');
+                    });
+                }
+            }
+        });
 
     })();
 
 
 });
+
+
+// Add Thành phố, thị xã, huyện
+function addElementToSearchListBig(array, type, storage) {
+    for (let i = 0; i < array.length; i++) {
+        const li = document.createElement('li');
+        storage.push(li);
+        li.innerHTML = `${type} ${array[i]}`;
+        $('.address-list').append(li);
+    };
+}
+// Add Phường, xã
+function addElementToSearchListSmall(array, type, storage) {
+    for (let i = 0; i < array.length; i++) {
+        const li = document.createElement('li');
+        storage.push(li);
+        li.innerHTML = `${type} ${array[i].name}`;
+        $('.address-list').append(li);
+    };
+}
+// Search by full name
+function filterData(searchTerm, listItems) {
+    listItems.forEach(item => {
+        if (item.innerText.toLowerCase().includes(searchTerm.toLowerCase())) {
+            item.classList.remove('hide');
+        } else {
+            item.classList.add('hide');
+        }
+    })
+}
