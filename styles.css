@@ -108,8 +108,8 @@ body {
     position: absolute;
     top: 20%;
     left: 5px;
-    width: 350px;
-    height: 60px;
+    width: 20%;
+    height: 60%;
 }
 
 h3 {
@@ -265,7 +265,7 @@ a:link {
     margin-left: -25px;
 }
 
-.adress-list li:not(:last-of-type) {
+.address-list li:not(:last-of-type) {
     border-bottom: 1px solid #eee;
 }
 
@@ -297,6 +297,10 @@ a:link {
     cursor: pointer;
     border-radius: 4px;
     margin: 5px;
+}
+
+.cong-cu i {
+    font-size: 130%;
 }
 
 .fa-solid {
