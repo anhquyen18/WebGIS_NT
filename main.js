@@ -122,10 +122,8 @@ jQuery(document).ready(function($) {
             return self.indexOf(value) === index;
         }
         var huyen = dataHuyen.filter(onlyUnique);
-        // console.log(huyen);
         huyen.splice(4, 2);
         huyen.splice(1, 1);
-        // console.log(huyen);
 
 
         $('.left').html = '';
@@ -566,6 +564,20 @@ jQuery(document).ready(function($) {
             },
         });
 
+        // Export Map
+        const exportFormat = new ol.format.WKT();
+        const exportFeature = exportFormat.readFeature(
+            'POLYGON((10.689697265625 -25.0927734375, 34.595947265625 ' +
+            '-20.1708984375, 38.814697265625 -35.6396484375, 13.502197265625 ' +
+            '-39.1552734375, 10.689697265625 -25.0927734375))'
+        );
+        const exportVector = new ol.layer.Vector({
+            source: new ol.source.Vector({
+                features: [exportFeature],
+            }),
+            opacity: 0,
+        });
+
         // Mouse Position
         const mousePositionControl = new ol.control.MousePosition({
             coordinateFormat: ol.coordinate.createStringXY(4),
@@ -578,6 +590,25 @@ jQuery(document).ready(function($) {
             target: document.getElementById('mouse-position'),
         });
 
+        const pageSize = {
+            a0: [1189, 841],
+            a1: [841, 594],
+            a2: [594, 420],
+            a3: [420, 297],
+            a4: [297, 210],
+            a5: [210, 148],
+        };
+
+
+        // Map Scale Bar
+        const scaleControl = new ol.control.ScaleLine({
+            units: 'metric',
+            bar: true,
+            steps: 4,
+            text: true,
+            minWidth: 100,
+            target: document.getElementById('scale-line'),
+        });
 
         // Full Screen
         var fullScreen = new ol.control.FullScreen();
@@ -646,19 +677,19 @@ jQuery(document).ready(function($) {
         }
 
         var map = new ol.Map({
-            controls: ol.control.defaults().extend([fullScreen, mousePositionControl, googleOverviewMapControl]),
+            controls: ol.control.defaults().extend([fullScreen, mousePositionControl, googleOverviewMapControl, scaleControl]),
             target: 'map',
             layers: [
-                baseLayerGroup, hanhChinhMap, measureVector
+                baseLayerGroup, hanhChinhMap, measureVector, exportVector
             ],
             view: new ol.View({
                 // center: ol.proj.fromLonLat([109.196749, 12.238791]),
-                // zoom: 9.5,
-                // maxZoom: 20,
-                //minZoom: 1,
                 //rotation: 0.8,
+                minZoom: 3,
+                maxZoom: 20,
                 projection: projection
             }),
+
             // overlays: [overlayPopup]
         });
 
@@ -829,7 +860,8 @@ jQuery(document).ready(function($) {
             // map.getView().setCenter([619517.632, 1327885.569]);
         })
         $('#zoom-in-button').click(function() {
-            map.getView().setZoom(map.getView().getZoom() + 1);
+            // map.getView().setZoom(map.getView().getZoom() + 1);
+            map.getView().setZoom(7.09);
         });
         $('#zoom-out-button').click(function() {
             map.getView().setZoom(map.getView().getZoom() - 1);
@@ -857,6 +889,100 @@ jQuery(document).ready(function($) {
             } else {
                 map.removeInteraction(draw);
             }
+        });
+        $('#export-button').click(function() {
+            $('.export-form').toggleClass('export-form--show');
+        });
+        $('#export-pdf-button').click(function() {
+            $('#export-pdf-button').prop('disabled', true);
+            document.body.style.cursor = 'progress';
+            const format = document.getElementById('export-format').value;
+            const resolution = document.getElementById('export-resolution').value;
+            const dim = pageSize[format];
+            const width = Math.round((dim[0] * resolution) / 25.4);
+            const height = Math.round((dim[1] * resolution) / 25.4);
+            const size = map.getSize();
+            const viewResolution = map.getView().getResolution();
+
+            map.once('rendercomplete', function() {
+                const mapCanvas = document.createElement('canvas');
+                mapCanvas.width = width;
+                mapCanvas.height = height;
+                mapCanvas
+                // const src = mapCanvas.getAttribute('src');
+                mapCanvas.setAttribute('crossOrigin', 'anonymous');
+                // mapCanvas.setAttribute('src', src);
+
+
+                var image = document.createElement('img');
+                image.setAttribute('crossOrigin', 'anonymous');
+                image.src = 'resources/logo DUT and Name.png';
+                const mapContext = mapCanvas.getContext('2d');
+                Array.prototype.forEach.call(
+                    document.querySelectorAll('.ol-layer canvas'),
+                    function(canvas) {
+                        if (canvas.width > 0) {
+                            canvas.setAttribute('crossOrigin', 'anonymous');
+                            const opacity = canvas.parentNode.style.opacity;
+                            mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
+                            const transform = canvas.style.transform;
+                            // Get the transform parameters from the style's transform matrix
+                            const matrix = transform
+                                .match(/^matrix\(([^\(]*)\)$/)[1]
+                                .split(',')
+                                .map(Number);
+                            // Apply the transform to the export map context
+                            CanvasRenderingContext2D.prototype.setTransform.apply(
+                                mapContext,
+                                matrix
+                            );
+                            mapContext.drawImage(canvas, 0, 0);
+                        }
+                    }
+                );
+
+                mapContext.globalAlpha = 1;
+                const pdf = new jspdf.jsPDF('landscape', undefined, format);
+
+                pdf.addImage(
+                    image,
+                    'PNG', 20, 20,
+                    dim[0] - 40,
+                    dim[1] - 50
+                );
+                // pdf.addImage(
+                //     mapCanvas.toDataURL('image/jpeg'),
+                //     'PNG', 20, 20,
+                //     dim[0] - 40,
+                //     dim[1] - 50
+                // );
+                pdf.rect(20, 20, dim[0] - 40, dim[1] - 50)
+                pdf.addFont('resources/JetBrainsMono-Bold.ttf', 'JetBrain', 'bold');
+                pdf.setFont('JetBrain', 'bold');
+
+                pdf.setFontSize(6);
+                pdf.text(dim[0] - 20, dim[1] - 10, 'DUT WREF');
+
+                pdf.setTextColor('#4271A7')
+                pdf.setFontSize(16);
+                pdf.text(dim[0] / 2, 10, 'Trường Đại học Bách Khoa - Đại học Đà Nẵng\n Khoa Xây dựng Công trình thủy', { align: 'center' });
+
+                // pdf.addImage('Anh Quyền đẹp trai vcl', 'JPEG', 0, 0, 200, 200);
+                pdf.save('map.pdf');
+                // Reset original map size
+                map.setSize(size);
+                map.getView().setResolution(viewResolution);
+                // map.getView().setZoom(map.getView().getZoom() - 1);/
+                $('#export-pdf-button').prop('disabled', false);
+                document.body.style.cursor = 'auto';
+            });
+
+            // Set print size
+            const printSize = [width, height];
+            map.setSize(printSize);
+            const scaling = Math.min(width / size[0], height / size[1]);
+            map.getView().setResolution(viewResolution / scaling);
+            $('#export-pdf-button').prop('disabled', false);
         });
 
         const listItems = [];
@@ -915,10 +1041,7 @@ jQuery(document).ready(function($) {
                                                 break;
                                             }
                                         }
-                                        console.log(text, "+", exactlyFeature.properties['NAME_3']);
-
                                         var featureAttr = exactlyFeature.properties;
-                                        console.log(featureAttr);
                                         if (featureAttr["NAME_2"] === "Nha Trang" || featureAttr["NAME_2"] === "Cam Ranh") {
                                             content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Thành phố " + featureAttr["NAME_2"];
                                         } else if (featureAttr["NAME_2"] === "Ninh Hòa") {
@@ -927,17 +1050,13 @@ jQuery(document).ready(function($) {
                                             content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Huyện " + featureAttr["NAME_2"];
                                         }
 
-                                        // console.log($(this).text());
-                                        // console.log(data);
                                         $("#popup-content").html(content);
                                         overlayPopup.setPosition(newCoord);
 
                                         var vectorSource = new ol.source.Vector({
                                             features: (new ol.format.GeoJSON()).readFeatures(exactlyFeature)
                                         });
-                                        // console.log((new ol.format.GeoJSON()).readFeatures(data));
                                         vectorLayerPopup.setSource(vectorSource);
-
 
                                     } catch (err) {
 
@@ -990,10 +1109,8 @@ jQuery(document).ready(function($) {
                                                 break;
                                             }
                                         }
-                                        console.log(text, "+", exactlyFeature.properties['NAME_3']);
 
                                         var featureAttr = exactlyFeature.properties;
-                                        console.log(featureAttr);
                                         if (featureAttr["NAME_2"] === "Nha Trang" || featureAttr["NAME_2"] === "Cam Ranh") {
                                             content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Thành phố " + featureAttr["NAME_2"];
                                         } else if (featureAttr["NAME_2"] === "Ninh Hòa") {
@@ -1002,17 +1119,13 @@ jQuery(document).ready(function($) {
                                             content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Huyện " + featureAttr["NAME_2"];
                                         }
 
-                                        // console.log($(this).text());
-                                        // console.log(data);
                                         $("#popup-content").html(content);
                                         overlayPopup.setPosition(newCoord);
 
                                         var vectorSource = new ol.source.Vector({
                                             features: (new ol.format.GeoJSON()).readFeatures(exactlyFeature)
                                         });
-                                        // console.log((new ol.format.GeoJSON()).readFeatures(data));
                                         vectorLayerPopup.setSource(vectorSource);
-
 
                                     } catch (err) {
 
