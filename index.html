@@ -9,13 +9,16 @@
     <title>WebGIS Demo</title>
     <link rel="icon" type="image/x-icon" href="resources/Logo DUT.ico">
     <link rel="stylesheet" href="./styles.css">
+    <script src="https://kit.fontawesome.com/aa99f25d07.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/css/ol.css" type="text/css">
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/build/ol.js"></script>
     <script src="https://cdn.polyfill.io/v3/polyfill.min.js?features=fetch,requestAnimationFrame,Element.prototype.classList,TextDecoder"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/3.18.3/minified.js"></script>
-    <script src="https://kit.fontawesome.com/aa99f25d07.js" crossorigin="anonymous"></script>
-    <script src="https://requirejs.org/docs/release/2.3.6/comments/require.js"></script>
+    <script src="https://unpkg.com/elm-pep@1.0.6/dist/elm-pep.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <!-- <script src="https://requirejs.org/docs/release/2.3.6/comments/require.js"></script> -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 
 </head>
 
@@ -33,24 +36,24 @@
 
         <div class="bottom-top">
             <button class="sidebar-button" id="danh-muc">Danh Mục</button>
-            <button class="sidebar-button" id="truy-van">Truy Vấn</button>
+            <!-- <button class="sidebar-button" id="truy-van">Truy Vấn</button> -->
 
-            <div class="cong-cu-bar">
+            <div class="tool-bar">
                 <p> Công cụ:</p>
-                <button class="cong-cu" id="home-button">
+                <button class="tool" id="home-button">
                     <i class="fa-solid fa-house-chimney-window" title="Home"></i>
                 </button>
-                <button class="cong-cu" id="zoom-in-button">
+                <button class="tool" id="zoom-in-button">
                     <i class="fa-solid fa-magnifying-glass-plus" title="Phóng to"></i>
                 </button>
-                <button class="cong-cu" id="zoom-out-button" title="Thu nhỏ">
+                <button class="tool" id="zoom-out-button" title="Thu nhỏ">
                     <i class="fa-solid fa-magnifying-glass-minus"></i>
                 </button>
-                <button class="cong-cu" id="hand-button">
+                <button class="tool" id="hand-button">
                     <i class="fa-solid fa-hand" title="Con trỏ"></i>
                 </button>
                 <div class="measure-tool">
-                    <button class="cong-cu" id="measure-button">
+                    <button class="tool" id="measure-button">
                         <i class="fa-solid fa-pen-ruler" title="Đo đạc"></i>
                     </button>
                     <form class="form-inline">
@@ -73,15 +76,45 @@
                         <input type="checkbox" id="clear" checked />
                     </form>
                 </div>
-                <button class="cong-cu" id="popup-button">
+                <button class="tool" id="popup-button">
                     <i class="fa-solid fa-circle-exclamation" title="Hiện Popup"></i>
                 </button>
-                <button class="cong-cu" id="popdown-button">
+                <button class="tool" id="popdown-button">
                     <i class="fa-solid fa-ban" title="Ẩn Popup"></i>
                 </button>
+                <div class="export-tool">
+                    <button class="tool" id="export-button">
+                        <i class="fa-solid fa-print" titl="Home"> </i>
+                    </button>
+                    <div class="export-form">
+                        <form>
+                            <label for="export-format">Kích cỡ trang:&nbsp</label>
+                            <select id="export-format">
+                            <option value="a0">A0</option>
+                            <option value="a1">A1</option>
+                            <option value="a2">A2</option>
+                            <option value="a3">A3</option>
+                            <option value="a4" selected>A4</option>
+                            <option value="a5">A5</option>
+                          </select><br>
+                            <label for="export-resolution">Độ phân giải:&nbsp</label>
+                            <select id="export-resolution">
+                            <option value="72">72 dpi</option>
+                            <option value="150">150 dpi</option>
+                            <option value="300">300 dpi</option>
+                          </select>
+                            <br>
+                            <div>
+                                <label for="export-name">Tên file:&nbsp</label>
+                                <input id="export-name" type="text" value="Map.pdf">
+                            </div>
+                        </form>
+                        <button id="export-pdf-button">Xuất bản đồ</button>
+                    </div>
+                </div>
                 <div class="search-tool">
                     <div class="search-button">
-                        <button class="cong-cu" id="search-button">
+                        <button class="tool" id="search-button">
                             <i class="fa-solid fa-magnifying-glass" title="Tìm kiếm"></i>
                         </button>
                         <input id="search-input" type="text" class="search-input" placeholder="Tìm kiếm địa chính theo tên...">
@@ -91,6 +124,7 @@
                         </ul>
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -135,7 +169,7 @@
         <div class="bottom">
             <div class="bottom_button">
                 <button class="bottom-bar-button">Chú thích</button>
-                <button class="bottom-bar-button">Overview map</button>
+                <!-- <button class="bottom-bar-button">Overview map</button> -->
             </div>
 
             <p>Trong suốt</p>
@@ -163,6 +197,7 @@
             <P>Được phát triển bởi team DUT WREF</P>
             <div id="mouse-position"></div>
         </div>
+        <div class="scale-line" id="scale-line"></div>
     </div>
 
     <div id="popup" class="ol-popup">
