@@ -1,3 +1,5 @@
+import * as mapModules from "./modules.js";
+
 pageEffects();
 
 //-------------------------------------------------------------------------
@@ -23,135 +25,58 @@ function pageEffects() {
 
 }
 
+function HanhChinhLabel(name, parrent, pos_x, pos_y) {
+    this.name = name;
+    this.parrent = parrent;
+    this.pos_x = pos_x;
+    this.pos_y = pos_y;
+}
 //-------------------------------------------------------------------------
 jQuery(document).ready(function($) {
 
     (async() => {
-        var dataMap = [];
-        var huyen = [];
-        var thanhPho = ["Nha Trang", "Cam Ranh"];
-        var thiXa = ["Ninh Hòa"];
-
-        function HanhChinhLabel(name, parrent, pos_x, pos_y) {
-            this.name = name;
-            this.parrent = parrent;
-            this.pos_x = pos_x;
-            this.pos_y = pos_y;
-        }
-        var phuong_NhaTrang = [];
-        var xa_NhaTrang = [];
-        var phuong_CamRanh = [];
-        var xa_CamRanh = [];
-        var phuong_NinhHoa = [];
-        var xa_NinhHoa = [];
-        var thiTran_CamLam = [];
-        var xa_CamLam = [];
-        var thiTran_DienKhanh = [];
-        var xa_DienKhanh = [];
-        var thiTran_KhanhSon = [];
-        var xa_KhanhSon = [];
-        var thiTran_KhanhVinh = [];
-        var xa_KhanhVinh = [];
-        var thiTran_VanNinh = [];
-        var xa_VanNinh = [];
+        var hanhChinhData = [];
+        var huyenData = [];
 
 
         await fetch("./map_data_epsg3857.json")
             .then(function(resp) {
                 return resp.json();
             }).then(function(data) {
-                dataMap = data.rows;
+                hanhChinhData = data.rows;
             });
 
-        var dataHuyen = [];
-        for (let i = 0; i < dataMap.length; i++) {
-            dataHuyen.push(dataMap[i].name_2);
-            if (dataMap[i].name_2 === "Nha Trang" && dataMap[i].type_3 === "Phường") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                phuong_NhaTrang.push(hc);
-            } else if (dataMap[i].name_2 === "Nha Trang" && dataMap[i].type_3 === "Xã") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                xa_NhaTrang.push(hc);
-            } else if (dataMap[i].name_2 === "Cam Ranh" && dataMap[i].type_3 === "Phường") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                phuong_CamRanh.push(hc);
-            } else if (dataMap[i].name_2 === "Cam Ranh" && dataMap[i].type_3 === "Xã") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                xa_CamRanh.push(hc);
-            } else if (dataMap[i].name_2 === "Ninh Hòa" && dataMap[i].type_3 === "Phường") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                phuong_NinhHoa.push(hc);
-            } else if (dataMap[i].name_2 === "Ninh Hòa" && dataMap[i].type_3 === "Xã") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                xa_NinhHoa.push(hc);
-            } else if (dataMap[i].name_2 === "Cam Lâm" && dataMap[i].type_3 === "Thị trấn") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                thiTran_CamLam.push(hc);
-            } else if (dataMap[i].name_2 === "Cam Lâm" && dataMap[i].type_3 === "Xã") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                xa_CamLam.push(hc);
-            } else if (dataMap[i].name_2 === "Diên Khánh" && dataMap[i].type_3 === "Thị trấn") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                thiTran_DienKhanh.push(hc);
-            } else if (dataMap[i].name_2 === "Diên Khánh" && dataMap[i].type_3 === "Xã") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                xa_DienKhanh.push(hc);
-            } else if (dataMap[i].name_2 === "Khánh Sơn" && dataMap[i].type_3 === "Thị trấn") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                thiTran_KhanhSon.push(hc);
-            } else if (dataMap[i].name_2 === "Khánh Sơn" && dataMap[i].type_3 === "Xã") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                xa_KhanhSon.push(hc);
-            } else if (dataMap[i].name_2 === "Khánh Vĩnh" && dataMap[i].type_3 === "Thị trấn") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                thiTran_KhanhVinh.push(hc);
-            } else if (dataMap[i].name_2 === "Khánh Vĩnh" && dataMap[i].type_3 === "Xã") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                xa_KhanhVinh.push(hc);
-            } else if (dataMap[i].name_2 === "Vạn Ninh" && dataMap[i].type_3 === "Thị trấn") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                thiTran_VanNinh.push(hc);
-            } else if (dataMap[i].name_2 === "Vạn Ninh" && dataMap[i].type_3 === "Xã") {
-                const hc = new HanhChinhLabel(dataMap[i].name, dataMap[i].name_2, dataMap[i].pos_x, dataMap[i].pos_y);
-                xa_VanNinh.push(hc);
-            }
+        hanhChinhData.sort(function(a, b) {
+            return a.type_3.localeCompare(b.type_3);
+        });
+
+
+        for (let i = 0; i < hanhChinhData.length; i++) {
+            huyenData.push({ name: hanhChinhData[i].name_2, prefix: `${mapModules.getParentPrefix(hanhChinhData[i].name_2)}` });
         }
 
-        //Lấy huyện không trùng nhau
-        function onlyUnique(value, index, self) {
-            return self.indexOf(value) === index;
-        }
-        var huyen = dataHuyen.filter(onlyUnique);
-        huyen.splice(4, 2);
-        huyen.splice(1, 1);
+        huyenData = mapModules.getDistinct(huyenData);
 
+        huyenData.sort(function(a, b) {
+            return b.prefix.localeCompare(a.prefix);
+        });
 
         $('.left').html = '';
         const hanhChinh = document.createElement('div');
         const satLoDat = document.createElement('div');
         const firstContentHC = document.createElement('div');
         const firstContentSLD = document.createElement('div');
-        const secondContentNhaTrang = document.createElement('div');
-        const secondContentCamRanh = document.createElement('div');
-        const secondContentNinhHoa = document.createElement('div');
-        const secondContentVanNinh = document.createElement('div');
-        const secondContentCamLam = document.createElement('div');
-        const secondContentKhanhVinh = document.createElement('div');
-        const secondContentDienKhanh = document.createElement('div');
-        const secondContentKhanhSon = document.createElement('div');
 
-        hanhChinh.classList.add('first-bar');
+        var secondBarContentDiv = [];
+        for (let i = 0; i < huyenData.length; i++) {
+            secondBarContentDiv.push({ div: document.createElement('div'), name: huyenData[i].name });
+            secondBarContentDiv[i].div.classList.add('second-bar-content');
+        }
+
+        hanhChinh.classList.add('first-bar', 'first-bar--active');
         satLoDat.classList.add('first-bar');
-        firstContentHC.classList.add('first-bar-content');
+        firstContentHC.classList.add('first-bar-content', 'first-bar-content--active');
         firstContentSLD.classList.add('first-bar-content');
-        secondContentNhaTrang.classList.add('second-bar-content');
-        secondContentCamRanh.classList.add('second-bar-content');
-        secondContentNinhHoa.classList.add('second-bar-content');
-        secondContentVanNinh.classList.add('second-bar-content');
-        secondContentCamLam.classList.add('second-bar-content');
-        secondContentKhanhVinh.classList.add('second-bar-content');
-        secondContentDienKhanh.classList.add('second-bar-content');
-        secondContentKhanhSon.classList.add('second-bar-content');
 
         hanhChinh.innerHTML = `
     <i class="fa-regular fa-square-plus"></i>
@@ -171,135 +96,36 @@ jQuery(document).ready(function($) {
 <p class="plus-heading">Kịch bản ${i}</p>
 </div>`;
         };
-        for (let i = 0; i < thanhPho.length; i++) {
+
+        for (let i = 0; i < huyenData.length; i++) {
             firstContentHC.innerHTML += `
-    <div class="second-bar">
-    <i class="fa-regular fa-square-plus"></i>
-    <i class="fa-regular fa-square-minus"></i>
-    <p class="plus-heading">Thành phố ${thanhPho[i]}</p>
-</div>`;
-        };
-        for (let i = 0; i < thiXa.length; i++) {
-            firstContentHC.innerHTML += `
-    <div class="second-bar">
-    <i class="fa-regular fa-square-plus"></i>
-    <i class="fa-regular fa-square-minus"></i>
-    <p class="plus-heading">Thị xã ${thiXa[i]}</p>
-</div>`;
-        };
-        for (let i = 0; i < huyen.length; i++) {
-            firstContentHC.innerHTML += `
-    <div class="second-bar">
-    <i class="fa-regular fa-square-plus"></i>
-    <i class="fa-regular fa-square-minus"></i>
-    <p class="plus-heading">Huyện ${huyen[i]}</p>
-</div>`;
+                <div class="second-bar">
+                <i class="fa-regular fa-square-plus"></i>
+                <i class="fa-regular fa-square-minus"></i>
+                <p class="plus-heading">${huyenData[i].prefix} ${huyenData[i].name}</p>
+            </div>`;
         };
 
-        for (let i = 0; i < phuong_NhaTrang.length; i++) {
-            secondContentNhaTrang.innerHTML += `
-            <div class="second-content-item">Phường ${phuong_NhaTrang[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < xa_NhaTrang.length; i++) {
-            secondContentNhaTrang.innerHTML += `
-            <div class="second-content-item">Xã ${xa_NhaTrang[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < phuong_CamRanh.length; i++) {
-            secondContentCamRanh.innerHTML += `
-            <div class="second-content-item">Phường ${phuong_CamRanh[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < xa_CamRanh.length; i++) {
-            secondContentCamRanh.innerHTML += `
-            <div class="second-content-item">Xã ${xa_CamRanh[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < phuong_NinhHoa.length; i++) {
-            secondContentNinhHoa.innerHTML += `
-            <div class="second-content-item">Phường ${phuong_NinhHoa[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < xa_NinhHoa.length; i++) {
-            secondContentNinhHoa.innerHTML += `
-            <div class="second-content-item">Xã ${xa_NinhHoa[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < thiTran_VanNinh.length; i++) {
-            secondContentVanNinh.innerHTML += `
-            <div class="second-content-item">Thị trấn ${thiTran_VanNinh[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < xa_VanNinh.length; i++) {
-            secondContentVanNinh.innerHTML += `
-            <div class="second-content-item">Xã ${xa_VanNinh[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < thiTran_CamLam.length; i++) {
-            secondContentCamLam.innerHTML += `
-            <div class="second-content-item">Thị trấn ${thiTran_CamLam[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < xa_CamLam.length; i++) {
-            secondContentCamLam.innerHTML += `
-            <div class="second-content-item">Xã ${xa_CamLam[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < thiTran_KhanhVinh.length; i++) {
-            secondContentKhanhVinh.innerHTML += `
-            <div class="second-content-item">Thị trấn ${thiTran_KhanhVinh[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < xa_KhanhVinh.length; i++) {
-            secondContentKhanhVinh.innerHTML += `
-            <div class="second-content-item">Xã ${xa_KhanhVinh[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < thiTran_DienKhanh.length; i++) {
-            secondContentDienKhanh.innerHTML += `
-            <div class="second-content-item">Thị trấn ${thiTran_DienKhanh[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < xa_DienKhanh.length; i++) {
-            secondContentDienKhanh.innerHTML += `
-            <div class="second-content-item">Xã ${xa_DienKhanh[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < thiTran_KhanhSon.length; i++) {
-            secondContentKhanhSon.innerHTML += `
-            <div class="second-content-item">Thị trấn ${thiTran_KhanhSon[i].name}</div>
-            `;
-        };
-        for (let i = 0; i < xa_KhanhSon.length; i++) {
-            secondContentKhanhSon.innerHTML += `
-            <div class="second-content-item">Xã ${xa_KhanhSon[i].name}</div>
-            `;
-        };
+        for (let i = 0; i < hanhChinhData.length; i++) {
+            for (let j = 0; j < secondBarContentDiv.length; j++) {
+                if (hanhChinhData[i].name_2 === secondBarContentDiv[j].name) {
+                    secondBarContentDiv[j].div.innerHTML += `<div class="second-content-item">${hanhChinhData[i].type_3} ${hanhChinhData[i].name}</div>`;
+                }
+            }
+        }
+
         $('.left').append(hanhChinh);
         $('.left').append(firstContentHC);
         $('.left').append(satLoDat);
 
         $(".first-bar:nth(1)").after(firstContentSLD);
-
-        $('.plus-heading').each(function() {
-            if ($(this).text() === "Thành phố Nha Trang")
-                $(this).parent().after(secondContentNhaTrang);
-            else if ($(this).text() === "Thành phố Cam Ranh")
-                $(this).parent().after(secondContentCamRanh);
-            else if ($(this).text() === "Thị xã Ninh Hòa")
-                $(this).parent().after(secondContentNinhHoa);
-            else if ($(this).text() === "Huyện Vạn Ninh")
-                $(this).parent().after(secondContentVanNinh);
-            else if ($(this).text() === "Huyện Cam Lâm")
-                $(this).parent().after(secondContentCamLam);
-            else if ($(this).text() === "Huyện Khánh Vĩnh")
-                $(this).parent().after(secondContentKhanhVinh);
-            else if ($(this).text() === "Huyện Diên Khánh")
-                $(this).parent().after(secondContentDienKhanh);
-            else if ($(this).text() === "Huyện Khánh Sơn")
-                $(this).parent().after(secondContentKhanhSon);
-        });
+        for (let i = 0; i < secondBarContentDiv.length; i++) {
+            $('.plus-heading').each(function() {
+                if ($(this).text().endsWith(secondBarContentDiv[i].name)) {
+                    $(this).parent().after(secondBarContentDiv[i].div);
+                }
+            });
+        }
 
         $(".left .first-bar").click(function() {
             $(this).next().toggleClass("first-bar-content--active");
@@ -310,8 +136,17 @@ jQuery(document).ready(function($) {
             $(this).toggleClass("second-bar--active");
         });
 
-        //MAP --------------------------------------------------------------------------------------------------
-        // --------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+        //MAP ---------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------------
         var format = 'image/png';
         var bounds = [12097013.272963697, 1319442.5689750076,
             12186052.219326938, 1444732.2450413236
@@ -786,50 +621,11 @@ jQuery(document).ready(function($) {
         map.addControl(zoomSlider);
 
         var view = map.getView();
-        var viewResolution = view.getResolution();
-        var source = hanhChinhMap.getSource();
+        var hanhChinhMapSource = hanhChinhMap.getSource();
 
         map.on('singleclick', function(evt) {
-            var url = source.getFeatureInfoUrl(
-                evt.coordinate, viewResolution, view.getProjection(), {
-                    'INFO_FORMAT': 'application/json',
-                    'FEATURE_COUNT': 10
-                });
-            if (url) {
-                $.ajax({
-                    type: "GET",
-                    url: url,
-                    contentType: "application/json; charset=utf-8",
-                    dataType: 'json',
-                    success: function(data, status) {
-                        try {
-
-                            var feature = data.features[0];
-                            var featureAttr = feature.properties;
-                            if (featureAttr["NAME_2"] === "Nha Trang" || featureAttr["NAME_2"] === "Cam Ranh") {
-                                content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Thành phố " + featureAttr["NAME_2"];
-                            } else if (featureAttr["NAME_2"] === "Ninh Hòa") {
-                                content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Thị xã " + featureAttr["NAME_2"];
-                            } else {
-                                content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Huyện " + featureAttr["NAME_2"];
-                            }
-
-                            $("#popup-content").html(content);
-                            overlayPopup.setPosition(evt.coordinate);
-
-                            var vectorSource = new ol.source.Vector({
-                                features: (new ol.format.GeoJSON()).readFeatures(data)
-                            });
-
-                            vectorLayerPopup.setSource(vectorSource);
-                        } catch (err) {
-
-                        }
-                    }
-                });
-            }
+            mapModules.showLabelInfo(evt.coordinate, view, vectorLayerPopup, overlayPopup, hanhChinhMapSource);
         });
-
 
         $("#hanhChinhCb").change(function() {
             if ($("#hanhChinhCb").is(":checked")) {
@@ -857,11 +653,9 @@ jQuery(document).ready(function($) {
         //BUTTON BAR-------------------------------------------------------------------------
         $('#home-button').click(() => {
             map.getView().fit(bounds, map.getSize());
-            // map.getView().setCenter([619517.632, 1327885.569]);
         })
         $('#zoom-in-button').click(function() {
-            // map.getView().setZoom(map.getView().getZoom() + 1);
-            map.getView().setZoom(7.09);
+            map.getView().setZoom(map.getView().getZoom() + 1);
         });
         $('#zoom-out-button').click(function() {
             map.getView().setZoom(map.getView().getZoom() - 1);
@@ -956,14 +750,14 @@ jQuery(document).ready(function($) {
                 //     dim[0] - 40,
                 //     dim[1] - 50
                 // );
-                pdf.rect(20, 20, dim[0] - 40, dim[1] - 50)
+                pdf.rect(20, 20, dim[0] - 40, dim[1] - 50);
                 pdf.addFont('resources/JetBrainsMono-Bold.ttf', 'JetBrain', 'bold');
                 pdf.setFont('JetBrain', 'bold');
 
                 pdf.setFontSize(6);
                 pdf.text(dim[0] - 20, dim[1] - 10, 'DUT WREF');
 
-                pdf.setTextColor('#4271A7')
+                pdf.setTextColor('#4271A7');
                 pdf.setFontSize(16);
                 pdf.text(dim[0] / 2, 10, 'Trường Đại học Bách Khoa - Đại học Đà Nẵng\n Khoa Xây dựng Công trình thủy', { align: 'center' });
 
@@ -985,190 +779,58 @@ jQuery(document).ready(function($) {
             $('#export-pdf-button').prop('disabled', false);
         });
 
-        const listItems = [];
-        // addElementToSearchListBig(thanhPho, 'Thành phố', listItems);
-        // addElementToSearchListBig(thiXa, 'Thị xã', listItems);
-        // addElementToSearchListBig(huyen, 'Huyện', listItems);
-        addElementToSearchListSmall(thiTran_VanNinh, 'Thị trấn', listItems);
-        addElementToSearchListSmall(thiTran_CamLam, 'Thị trấn', listItems);
-        addElementToSearchListSmall(thiTran_KhanhVinh, 'Thị trấn', listItems);
-        addElementToSearchListSmall(thiTran_DienKhanh, 'Thị trấn', listItems);
-        addElementToSearchListSmall(thiTran_KhanhSon, 'Thị trấn', listItems);
-        addElementToSearchListSmall(phuong_NhaTrang, 'Phường', listItems);
-        addElementToSearchListSmall(phuong_CamRanh, 'Phường', listItems);
-        addElementToSearchListSmall(phuong_NinhHoa, 'Phường', listItems);
-        addElementToSearchListSmall(xa_NhaTrang, 'Xã', listItems);
-        addElementToSearchListSmall(xa_CamRanh, 'Xã', listItems);
-        addElementToSearchListSmall(xa_NinhHoa, 'Xã', listItems);
-        addElementToSearchListSmall(xa_VanNinh, 'Xã', listItems);
-        addElementToSearchListSmall(xa_CamLam, 'Xã', listItems);
-        addElementToSearchListSmall(xa_KhanhVinh, 'Xã', listItems);
-        addElementToSearchListSmall(xa_DienKhanh, 'Xã', listItems);
-        addElementToSearchListSmall(xa_KhanhSon, 'Xã', listItems);
-        var name = '';
+
+
         // Click Danh mục nhảy vị trí
         $(".second-content-item").each(function(event) {
-            for (let i = 0; i < dataMap.length; i++) {
-                if ($(this).text().endsWith(dataMap[i].name)) {
+            for (let i = 0; i < hanhChinhData.length; i++) {
+                if ($(this).text().endsWith(hanhChinhData[i].name)) {
                     $(this).click(function() {
                         map.addOverlay(overlayPopup);
                         vectorLayerPopup.setVisible(true);
-                        var coord = [parseFloat(dataMap[i].pos_x), parseFloat(dataMap[i].pos_y), `${$(this).text()}`];
+                        var coord = [parseFloat(hanhChinhData[i].pos_x), parseFloat(hanhChinhData[i].pos_y), `${$(this).text()}`];
                         map.getView().setCenter(coord);
                         map.getView().setZoom(13);
-                        var newURL = source.getFeatureInfoUrl(
-                            coord, viewResolution, view.getProjection(), {
-                                'INFO_FORMAT': 'application/json',
-                                'FEATURE_COUNT': 20
-                            });
-                        if (newURL) {
-                            $.ajax({
-                                type: "GET",
-                                url: newURL,
-                                contentType: "application/json; charset=utf-8",
-                                dataType: 'json',
-                                success: function(data, status) {
-                                    try {
-                                        var text = coord[2];
-                                        var newCoord = [coord[0] + 2000, coord[1] + 2000];
-                                        // var feature = data.features[0];
-                                        var feature = data.features;
-                                        var exactlyFeature;
+                        mapModules.showOnlyOneLabelInfo(coord, view, vectorLayerPopup, overlayPopup, hanhChinhMapSource);
 
-                                        for (let i = 0; i < data.features.length; i++) {
-                                            if (text.endsWith(feature[i].properties['NAME_3'])) {
-                                                exactlyFeature = feature[i];
-                                                break;
-                                            }
-                                        }
-                                        var featureAttr = exactlyFeature.properties;
-                                        if (featureAttr["NAME_2"] === "Nha Trang" || featureAttr["NAME_2"] === "Cam Ranh") {
-                                            content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Thành phố " + featureAttr["NAME_2"];
-                                        } else if (featureAttr["NAME_2"] === "Ninh Hòa") {
-                                            content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Thị xã " + featureAttr["NAME_2"];
-                                        } else {
-                                            content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Huyện " + featureAttr["NAME_2"];
-                                        }
-
-                                        $("#popup-content").html(content);
-                                        overlayPopup.setPosition(newCoord);
-
-                                        var vectorSource = new ol.source.Vector({
-                                            features: (new ol.format.GeoJSON()).readFeatures(exactlyFeature)
-                                        });
-                                        vectorLayerPopup.setSource(vectorSource);
-
-                                    } catch (err) {
-
-                                    }
-                                }
-                            });
-                        }
                     });
                 }
             }
         });
 
         // Tìm kiếm theo tên
+        const searchingPool = [];
+        mapModules.addElementToSearchingPool(hanhChinhData, searchingPool);
+        // console.log(searchingPool.length);
         $('#search-input').on('input', function(e) {
-                filterData(e.target.value, listItems)
+                mapModules.filterData(e.target.value, searchingPool);
             })
+            // mapModules.filterData(searchingPool);
             // Click kết quả search nhảy vị trí
         $(".address-list li").each(function() {
-            for (let i = 0; i < dataMap.length; i++) {
-                if ($(this).text().endsWith(dataMap[i].name)) {
+            var text = $(this).text().split(',', 2);
+            for (let i = 0; i < hanhChinhData.length; i++) {
+                if (text[0].endsWith(hanhChinhData[i].name)) {
                     $(this).click(function() {
                         map.addOverlay(overlayPopup);
                         vectorLayerPopup.setVisible(true);
-                        var coord = [parseFloat(dataMap[i].pos_x), parseFloat(dataMap[i].pos_y), `${$(this).text()}`];
+                        var coord = [parseFloat(hanhChinhData[i].pos_x), parseFloat(hanhChinhData[i].pos_y), `${text[0]}`];
                         map.getView().setCenter(coord);
                         map.getView().setZoom(13);
                         $('.active').removeClass('active');
-                        var newURL = source.getFeatureInfoUrl(
-                            coord, viewResolution, view.getProjection(), {
-                                'INFO_FORMAT': 'application/json',
-                                'FEATURE_COUNT': 20
-                            });
-                        if (newURL) {
-                            $.ajax({
-                                type: "GET",
-                                url: newURL,
-                                contentType: "application/json; charset=utf-8",
-                                dataType: 'json',
-                                success: function(data, status) {
-                                    try {
-                                        var text = coord[2];
-                                        var newCoord = [coord[0] + 2000, coord[1] + 2000];
-                                        // var feature = data.features[0];
-                                        var feature = data.features;
-                                        var exactlyFeature;
+                        mapModules.showOnlyOneLabelInfo(coord, view, vectorLayerPopup, overlayPopup, hanhChinhMapSource);
 
-                                        for (let i = 0; i < data.features.length; i++) {
-                                            if (text.endsWith(feature[i].properties['NAME_3'])) {
-                                                exactlyFeature = feature[i];
-                                                break;
-                                            }
-                                        }
-
-                                        var featureAttr = exactlyFeature.properties;
-                                        if (featureAttr["NAME_2"] === "Nha Trang" || featureAttr["NAME_2"] === "Cam Ranh") {
-                                            content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Thành phố " + featureAttr["NAME_2"];
-                                        } else if (featureAttr["NAME_2"] === "Ninh Hòa") {
-                                            content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Thị xã " + featureAttr["NAME_2"];
-                                        } else {
-                                            content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>Huyện " + featureAttr["NAME_2"];
-                                        }
-
-                                        $("#popup-content").html(content);
-                                        overlayPopup.setPosition(newCoord);
-
-                                        var vectorSource = new ol.source.Vector({
-                                            features: (new ol.format.GeoJSON()).readFeatures(exactlyFeature)
-                                        });
-                                        vectorLayerPopup.setSource(vectorSource);
-
-                                    } catch (err) {
-
-                                    }
-                                }
-                            });
-                        }
                     });
                 }
             }
         });
 
+
+
+
+
+
     })();
 
 
 });
-
-
-// Add Thành phố, thị xã, huyện
-function addElementToSearchListBig(array, type, storage) {
-    for (let i = 0; i < array.length; i++) {
-        const li = document.createElement('li');
-        storage.push(li);
-        li.innerHTML = `${type} ${array[i]}`;
-        $('.address-list').append(li);
-    };
-}
-// Add Phường, xã
-function addElementToSearchListSmall(array, type, storage) {
-    for (let i = 0; i < array.length; i++) {
-        const li = document.createElement('li');
-        storage.push(li);
-        li.innerHTML = `${type} ${array[i].name}`;
-        $('.address-list').append(li);
-    };
-}
-// Search by full name
-function filterData(searchTerm, listItems) {
-    listItems.forEach(item => {
-        if (item.innerText.toLowerCase().includes(searchTerm.toLowerCase())) {
-            item.classList.remove('hide');
-        } else {
-            item.classList.add('hide');
-        }
-    })
-}
