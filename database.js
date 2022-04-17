@@ -9,7 +9,7 @@ const pool = new Pool({
 });
 
 
-pool.query("select distinct name, varname_3, type_3, pos_x, pos_y, name_2 from public.hanh_chinh_nha_trang_epsg3857", (err, res) => {
+pool.query("select distinct name, varname_3, type_3, pos_x, pos_y, name_2, objectid from public.hanh_chinh_nha_trang_epsg3857", (err, res) => {
     var response = res;
     var arr = [];
     const json = JSON.stringify(response);
