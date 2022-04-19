@@ -31,6 +31,8 @@ function HanhChinhLabel(name, parrent, pos_x, pos_y) {
     this.pos_x = pos_x;
     this.pos_y = pos_y;
 }
+
+
 //-------------------------------------------------------------------------
 jQuery(document).ready(function($) {
 
@@ -458,6 +460,7 @@ jQuery(document).ready(function($) {
                     STYLES: '',
                     LAYERS: 'WebGIS_NhaTrang:hanh_chinh_nha_trang_EPSG3857',
                 },
+                crossOrigin: "Anonymous"
             }),
         });
 
@@ -469,6 +472,7 @@ jQuery(document).ready(function($) {
             opacity: 1,
             source: new ol.source.XYZ({
                 url: "https://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga",
+                crossOrigin: "Anonymous"
             }),
         });
 
@@ -595,12 +599,13 @@ jQuery(document).ready(function($) {
         var highlightLabelStyles = {
             'MultiPolygon': new ol.style.Style({
                 stroke: new ol.style.Stroke({
-                    color: 'rgb(98, 225, 225)',
+                    // color: 'rgb(98, 225, 225)',
+                    color: 'cyan',
                     width: 2,
                 }),
-                fill: new ol.style.Stroke({
-                    color: 'cyan',
-                })
+                // fill: new ol.style.Stroke({
+                //     color: 'cyan',
+                // })
             })
         };
 
@@ -702,15 +707,7 @@ jQuery(document).ready(function($) {
                 const mapCanvas = document.createElement('canvas');
                 mapCanvas.width = width;
                 mapCanvas.height = height;
-                mapCanvas
-                // const src = mapCanvas.getAttribute('src');
-                mapCanvas.setAttribute('crossOrigin', 'anonymous');
-                // mapCanvas.setAttribute('src', src);
 
-
-                var image = document.createElement('img');
-                image.setAttribute('crossOrigin', 'anonymous');
-                image.src = 'resources/logo DUT and Name.png';
                 const mapContext = mapCanvas.getContext('2d');
                 Array.prototype.forEach.call(
                     document.querySelectorAll('.ol-layer canvas'),
@@ -739,17 +736,12 @@ jQuery(document).ready(function($) {
                 const pdf = new jspdf.jsPDF('landscape', undefined, format);
 
                 pdf.addImage(
-                    image,
+                    mapCanvas.toDataURL('image/jpeg'),
                     'PNG', 20, 20,
                     dim[0] - 40,
                     dim[1] - 50
                 );
-                // pdf.addImage(
-                //     mapCanvas.toDataURL('image/jpeg'),
-                //     'PNG', 20, 20,
-                //     dim[0] - 40,
-                //     dim[1] - 50
-                // );
+
                 pdf.rect(20, 20, dim[0] - 40, dim[1] - 50);
                 pdf.addFont('resources/JetBrainsMono-Bold.ttf', 'JetBrain', 'bold');
                 pdf.setFont('JetBrain', 'bold');
@@ -761,8 +753,7 @@ jQuery(document).ready(function($) {
                 pdf.setFontSize(16);
                 pdf.text(dim[0] / 2, 10, 'Trường Đại học Bách Khoa - Đại học Đà Nẵng\n Khoa Xây dựng Công trình thủy', { align: 'center' });
 
-                // pdf.addImage('Anh Quyền đẹp trai vcl', 'JPEG', 0, 0, 200, 200);
-                pdf.save('map.pdf');
+                pdf.save($('#export-name').val());
                 // Reset original map size
                 map.setSize(size);
                 map.getView().setResolution(viewResolution);
@@ -778,7 +769,6 @@ jQuery(document).ready(function($) {
             map.getView().setResolution(viewResolution / scaling);
             $('#export-pdf-button').prop('disabled', false);
         });
-
 
 
         // Click Danh mục nhảy vị trí
@@ -824,7 +814,6 @@ jQuery(document).ready(function($) {
                 }
             }
         });
-
 
 
 
