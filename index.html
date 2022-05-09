@@ -9,24 +9,24 @@
     <title>WebGIS Demo</title>
     <link rel="icon" type="image/x-icon" href="resources/Logo DUT.ico">
     <link rel="stylesheet" href="./styles.css">
-    <script src="https://kit.fontawesome.com/aa99f25d07.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/css/ol.css" type="text/css">
+    <script src="https://kit.fontawesome.com/aa99f25d07.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/build/ol.js"></script>
     <script src="https://cdn.polyfill.io/v3/polyfill.min.js?features=fetch,requestAnimationFrame,Element.prototype.classList,TextDecoder"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/3.18.3/minified.js"></script>
     <script src="https://unpkg.com/elm-pep@1.0.6/dist/elm-pep.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
-    <!-- <script src="https://requirejs.org/docs/release/2.3.6/comments/require.js"></script> -->
+    <script src="https://requirejs.org/docs/release/2.3.6/comments/require.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+    <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/5ed507ef8aa53d8ecfea96d96bc7214cd2476fd2/FileSaver.min.js"></script>
 
 </head>
 
 <body>
     <div class="container">
         <div class="top">
-            <img src="resources/logo DUT and Name.png" alt="" id="logo">
-            <h3 id="heading">Kỹ Thuật xây dựng - Chuyên ngành tin học xây dựng <br> Khoa Xây dựng Công trình thủy</h3>
+            <img src="resources/Logo_BoNongNghiep.png" alt="" id="logo">
+            <h3 id="heading">HỆ THỐNG QUẢN LÝ CÔNG TRÌNH THỦY LỢI KHÁNH KHÒA<br>KHANH HOA IRRIGATION MANAGEMENT SYSTEM</h3>
             <nav class="hyperlink-container">
                 <a href="">Trang Chủ</a>
                 <a href="">Giới Thiệu</a>
@@ -40,21 +40,21 @@
 
             <div class="tool-bar">
                 <p> Công cụ:</p>
-                <button class="tool" id="home-button">
-                    <i class="fa-solid fa-house-chimney-window" title="Home"></i>
+                <button class="tool" id="home-button" title="Home">
+                    <i class="fa-solid fa-house-chimney-window" ></i>
                 </button>
-                <button class="tool" id="zoom-in-button">
-                    <i class="fa-solid fa-magnifying-glass-plus" title="Phóng to"></i>
+                <button class="tool" id="zoom-in-button" title="Phóng to">
+                    <i class="fa-solid fa-magnifying-glass-plus" ></i>
                 </button>
                 <button class="tool" id="zoom-out-button" title="Thu nhỏ">
                     <i class="fa-solid fa-magnifying-glass-minus"></i>
                 </button>
-                <button class="tool" id="hand-button">
-                    <i class="fa-solid fa-hand" title="Con trỏ"></i>
+                <button class="tool" id="hand-button" title="Con trỏ">
+                    <i class="fa-solid fa-hand" ></i>
                 </button>
                 <div class="measure-tool">
-                    <button class="tool" id="measure-button">
-                        <i class="fa-solid fa-pen-ruler" title="Đo đạc"></i>
+                    <button class="tool" id="measure-button" title="Đo đạc">
+                        <i class="fa-solid fa-pen-ruler" ></i>
                     </button>
                     <form class="form-inline">
                         <div class="switch-container">
@@ -76,15 +76,15 @@
                         <input type="checkbox" id="clear" checked />
                     </form>
                 </div>
-                <button class="tool" id="popup-button">
-                    <i class="fa-solid fa-circle-exclamation" title="Hiện Popup"></i>
+                <button class="tool" id="popup-button" title="Hiện Popup">
+                    <i class="fa-solid fa-circle-exclamation"></i>
                 </button>
-                <button class="tool" id="popdown-button">
-                    <i class="fa-solid fa-ban" title="Ẩn Popup"></i>
+                <button class="tool" id="popdown-button" title="Ẩn Popup">
+                    <i class="fa-solid fa-ban"></i>
                 </button>
                 <div class="export-tool">
-                    <button class="tool" id="export-button">
-                        <i class="fa-solid fa-print" titl="Home"> </i>
+                    <button class="tool" id="export-button" title="In ấn">
+                        <i class="fa-solid fa-print"></i>
                     </button>
                     <div class="export-form">
                         <form>
@@ -112,10 +112,48 @@
                         <button id="export-pdf-button">Xuất bản đồ</button>
                     </div>
                 </div>
+                <div class="edit-tool">
+                    <button class="tool" id="edit-button" title="Chỉnh sửa">
+                        <i class="fa-solid fa-file-pen"></i>
+                    </button>
+                    <form class="edit-form">
+                        <div class="edit-form__button-container">
+                            <button id="start-edit" type="button">Start Editing</button>
+                            <button id="save-edit" type="button" disabled>Save</button>
+                            <button id="stop-edit" type="button" disabled>Stop Editing</button>
+                        </div>
+                        <div>
+                            <button id="add-field-button" type="button" disabled>Add Field</button>
+                            <input type="text" id="add-field-input" maxlength="11" disabled>
+                        </div>
+                        <div class="feature-properties" id="feature-properties">
+                        </div>
+                    </form>
+                </div>
+                <div class="draw-tool">
+                    <button class="tool" id="draw-button" title="Vẽ">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <form class="draw-form">
+                        <div class="edit-form__button-container">
+                            <button id="start-draw" type="button">Start Drawing</button>
+                            <button id="stop-draw" type="button" disabled>Stop Drawing</button>
+                        </div>
+                        <label for="draw-type">Dạng nét vẽ: &nbsp;</label>
+                        <select id="draw-type" disabled>
+                            <option value="Point">Điểm (Point)</option>
+                            <option value="LineString">Đường thẳng (LineString)</option>
+                            <option value="Polygon">Đa giác (Polygon)</option>
+                            <!-- <option value="Circle">Đường tròn (Circle)</option> -->
+                            </select><br>
+                        <button id="undo-draw-feature" type="button" disabled>Undo</button>
+                        <button id="test-save" type="button">Test Save</button>
+                    </form>
+                </div>
                 <div class="search-tool">
                     <div class="search-button">
-                        <button class="tool" id="search-button">
-                            <i class="fa-solid fa-magnifying-glass" title="Tìm kiếm"></i>
+                        <button class="tool" id="search-button" title="Tìm kiếm">
+                            <i class="fa-solid fa-magnifying-glass" ></i>
                         </button>
                         <input id="search-input" type="text" class="search-input" placeholder="Tìm kiếm địa chính theo tên...">
                     </div>
@@ -194,7 +232,7 @@
                     <option value="1:5000">1:5.000</option>
                     <option value="1:10000">1:10.000</option></select>
             <p>|</p>
-            <P>Được phát triển bởi team DUT WREF</P>
+            <P>DEVELOPED BY GIS DUT TEAM</P>
             <div id="mouse-position"></div>
         </div>
         <div class="scale-line" id="scale-line"></div>

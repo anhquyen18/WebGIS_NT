@@ -1,0 +1,80 @@
+{
+    "type": "FeatureCollection",
+    "features": [{ "type": "Feature", "geometry": { "type": "Point", "coordinates": [109.05051393186024, 11.71108586464706] }, "properties": { "name": "diem du lich 3" }, "id": 11 }, { "type": "Feature", "geometry": { "type": "GeometryCollection", "geometries": [] }, "properties": null, "id": 13 }, { "type": "Feature", "geometry": { "type": "GeometryCollection", "geometries": [] }, "properties": null, "id": 14 }, {
+        "type": "Feature",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [110.33111466975383, 12.242044992758224],
+                    [109.55886756281468, 12.159543107766751],
+                    [109.75714744597231, 12.821809293519678],
+                    [110.64418831614223, 12.674220536132324],
+                    [110.33111466975383, 12.242044992758224]
+                ]
+            ]
+        },
+        "properties": { "name": "nha trang", "area": "1293812" },
+        "id": 8
+    }, { "type": "Feature", "geometry": { "type": "GeometryCollection", "geometries": [] }, "properties": { "name": "random circle", "objectID": "232" }, "id": 7 }, { "type": "Feature", "geometry": { "type": "GeometryCollection", "geometries": [] }, "properties": { "name": "random circle" }, "id": 9 }, { "type": "Feature", "geometry": { "type": "GeometryCollection", "geometries": [] }, "properties": null, "id": 15 }, {
+        "type": "Feature",
+        "geometry": {
+            "type": "LineString",
+            "coordinates": [
+                [107.64390282093274, 12.507071155560212],
+                [108.42658574262428, 12.695482444759321],
+                [108.51007226064426, 12.338912632324721]
+            ]
+        },
+        "properties": { "name": "anhquyen", "width": "500" },
+        "id": 6
+    }, {
+        "type": "Feature",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [107.70875776201852, 12.110333691742255],
+                    [108.38745464302272, 10.789096752014757],
+                    [108.32237439711359, 12.155781382833766],
+                    [107.70875776201852, 12.110333691742255]
+                ]
+            ]
+        },
+        "properties": null,
+        "id": 5
+    }, { "type": "Feature", "geometry": { "type": "Point", "coordinates": [108.72179752213518, 11.803783876378375] }, "properties": { "name": "diem du lich 1", "objectID": "124" }, "id": 10 }, { "type": "Feature", "geometry": { "type": "Point", "coordinates": [108.81826866164026, 11.688343801356226] }, "properties": { "name": "diem du lich 2", "objectID": "323" }, "id": 12 }, {
+        "type": "Feature",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [-143.70042183132193, 37.073288872737464],
+                    [-128.5832343313219, 34.622955531323],
+                    [-128.2316718313219, 26.96189309588452],
+                    [-146.30198620886824, 26.333457820908308],
+                    [-149.60667290420554, 33.3403137409354],
+                    [-143.70042183132193, 37.073288872737464]
+                ]
+            ]
+        },
+        "properties": null,
+        "id": "1"
+    }, {
+        "type": "Feature",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [-145.17698594064734, 44.562811714301745],
+                    [-131.3957343313219, 44.36208087529613],
+                    [-128.72385986776374, 39.609632554455146],
+                    [-147.49729790420554, 39.933884408331664],
+                    [-145.17698594064734, 44.562811714301745]
+                ]
+            ]
+        },
+        "properties": null,
+        "id": "2"
+    }, { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-127.17698433132193, 37.18540390167594] }, "properties": null }, { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-122.11448647708914, 28.27019154571869] }, "properties": null }]
+}

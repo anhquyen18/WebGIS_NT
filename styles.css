@@ -106,10 +106,10 @@ body {
 
 #logo {
     position: absolute;
-    top: 20%;
-    left: 5px;
-    width: 20%;
-    height: 60%;
+    top: -5%;
+    left: 15px;
+    width: 7%;
+    height: 110%;
 }
 
 h3 {
@@ -333,6 +333,95 @@ a:link {
 }
 
 .form-inline:before {
+    color: #378bf2;
+    content: '\25b2';
+    position: absolute;
+    left: 12px;
+    top: -18px;
+}
+
+.edit-form__button-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+#add-field-input {
+    margin-left: 16px;
+    width: 130px;
+}
+
+.edit-form {
+    display: none;
+}
+
+.edit-form.edit-form--show {
+    background-color: #378bf2;
+    color: #fff;
+    width: auto;
+    text-align: left;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    padding: 5px;
+    display: block;
+    position: absolute;
+    z-index: 2;
+    margin-top: 5px;
+}
+
+.edit-form .feature-properties div {
+    display: flex;
+    /* background-color: red; */
+    /* justify-content: right; */
+    /* flex-direction: column; */
+    /* left: 100px; */
+}
+
+.edit-form .feature-properties i {
+    background: transparent;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    /* outline: none; */
+}
+
+.edit-form input {
+    width: 105px;
+    height: 25px;
+    /* width: max-content; */
+}
+
+.edit-form label {
+    /* background-color: red; */
+    width: 100px;
+}
+
+.edit-form:before {
+    color: #378bf2;
+    content: '\25b2';
+    position: absolute;
+    left: 12px;
+    top: -18px;
+}
+
+.draw-form {
+    display: none;
+}
+
+.draw-form.draw-form--show {
+    background-color: #378bf2;
+    color: #fff;
+    width: 220px;
+    text-align: left;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    padding: 5px;
+    display: block;
+    position: absolute;
+    z-index: 2;
+    margin-top: 5px;
+}
+
+.draw-form:before {
     color: #378bf2;
     content: '\25b2';
     position: absolute;
@@ -767,7 +856,7 @@ a:link {
     border: 1px solid #cccccc;
     bottom: 12px;
     left: -50px;
-    min-width: 200px;
+    min-width: 220px;
     max-width: 250px;
 }
 
@@ -860,8 +949,8 @@ a:link {
 
 .scale-line {
     position: absolute;
-    bottom: 30px;
-    left: 400px;
+    bottom: 6%;
+    right: 17%;
     pointer-events: none;
     /* z-index: 100; */
 }

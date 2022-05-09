@@ -11,7 +11,6 @@ function addElementToSearchingPool(array, pool) {
 // Search by full name
 function filterData(searchTerm, listItems) {
     listItems.forEach(item => {
-        console.log(item.object);
         if (item.object.innerText.toLowerCase().includes(searchTerm.toLowerCase())) {
             item.object.classList.remove('hide');
         } else {
@@ -59,7 +58,7 @@ function showOnlyOneLabelInfo(coord, view, vectorLayerPopup, overlayPopup, sourc
                     }
                     var content;
                     var featureAttr = exactlyFeature.properties;
-                    content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>" + `${getParentPrefix(featureAttr["NAME_2"])} ` + featureAttr["NAME_2"];
+                    content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>" + `${getParentPrefix(featureAttr["NAME_2"])} ` + featureAttr["NAME_2"] + ".<br>Dân số: " + featureAttr["population"] + "<br>Diện tích: " + featureAttr["area"] + " m<sup>2</sup>";
                     $("#popup-content").html(content);
                     overlayPopup.setPosition(newCoord);
                     var vectorSource = new ol.source.Vector({
@@ -88,10 +87,11 @@ function showLabelInfo(coord, view, vectorLayerPopup, overlayPopup, source) {
             dataType: 'json',
             success: function(data, status) {
                 try {
+                    // (parseFloat(featureAttr["area"]) / Math.pow(10, 6)).toFixed(2)
                     var content;
                     var feature = data.features[0];
                     var featureAttr = feature.properties;
-                    content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>" + `${getParentPrefix(featureAttr["NAME_2"])} ` + featureAttr["NAME_2"];
+                    content = featureAttr["TYPE_3"] + " " + featureAttr["NAME_3"] + ",<br>" + `${getParentPrefix(featureAttr["NAME_2"])} ` + featureAttr["NAME_2"] + ".<br>Dân số: " + featureAttr["population"] + "<br>Diện tích: " + featureAttr["area"] + " m<sup>2</sup>";
                     $("#popup-content").html(content);
                     overlayPopup.setPosition(coord);
                     var vectorSource = new ol.source.Vector({
@@ -121,5 +121,37 @@ function getDistinct(items) {
     return result;
 }
 
+// Create field for editing feature
+function createField(parent, name, value, disabled) {
+    var div = document.createElement("div");
+    var label = document.createElement("label");
+    var input = document.createElement("input");
+    var iconButton = document.createElement("i");
+    iconButton.classList.add('fa-solid');
+    iconButton.classList.add('fa-circle-minus');
+    div.append(iconButton, label, input);
+    iconButton.addEventListener('click', function() {
+        var parentRemove = iconButton.parentElement;
+        var grandParent = document.getElementById("feature-properties");
+        var fieldMaxCount = 19;
+        var fieldCount = document.getElementById('feature-properties').childElementCount;
+        grandParent.removeChild(parentRemove);
+        if (fieldCount <= fieldMaxCount) {
+            $('#add-field-button').prop('disabled', false);
+        }
+    });
+    if (disabled == true) {
+        iconButton.style.visibility = "hidden";
+    }
+    label.innerText = `${name}`;
+    input.type = "text";
+    input.value = `${value}`;
+    input.disabled = disabled;
+    input.addEventListener('input', function() {
+        $('#save-edit').prop('disabled', false);
+    });
+    $(`${parent}`).append(div);
+}
 
-export { addElementToSearchingPool, filterData, showLabelInfo, showOnlyOneLabelInfo, getParentPrefix, getDistinct };
+
+export { addElementToSearchingPool, filterData, showLabelInfo, showOnlyOneLabelInfo, getParentPrefix, getDistinct, createField };

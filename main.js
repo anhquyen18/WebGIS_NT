@@ -8,7 +8,7 @@ function pageEffects() {
     const mapMenu = document.getElementById("map-menu");
     mapButton.addEventListener('click', () => {
         mapMenu.classList.toggle("active");
-    })
+    });
 
     const search = document.querySelector('.search-button');
     const searchBt = document.querySelector('#search-button');
@@ -162,6 +162,8 @@ jQuery(document).ready(function($) {
         const typeSelect = document.getElementById('type');
         const showSegments = document.getElementById('segments');
         const clearPrevious = document.getElementById('clear');
+        // DRAW TOOL
+        const drawTypeSelect = document.getElementById('draw-type');
 
         var openStreetMapStandard = new ol.layer.Tile({
             source: new ol.source.OSM(),
@@ -418,8 +420,8 @@ jQuery(document).ready(function($) {
         // Mouse Position
         const mousePositionControl = new ol.control.MousePosition({
             coordinateFormat: ol.coordinate.createStringXY(4),
-            projection: 'EPSG:4326',
-            // projection: 'EPSG:3857',
+            // projection: 'EPSG:4326',
+            projection: 'EPSG:3857',
             // projection: 'EPSG:32648',
             // comment the following two lines to have the mouse position
             // be placed within the map.
@@ -457,10 +459,12 @@ jQuery(document).ready(function($) {
                 params: {
                     'FORMAT': format,
                     'VERSION': '1.1.1',
-                    STYLES: '',
+                    STYLES: 'WebGIS_NhaTrang:style_hanhChinhNhaTrang',
                     LAYERS: 'WebGIS_NhaTrang:hanh_chinh_nha_trang_EPSG3857',
                 },
-                crossOrigin: "Anonymous"
+                crossOrigin: "Anonymous",
+                format: new ol.format.GeoJSON(),
+                wrapX: false,
             }),
         });
 
@@ -515,11 +519,67 @@ jQuery(document).ready(function($) {
             })
         }
 
+        // Draw Vector
+        var drawVector = new ol.layer.Vector({
+            background: 'transparent',
+            source: new ol.source.Vector({
+                url: 'test (1).json',
+                format: new ol.format.GeoJSON(),
+                wrapX: false,
+            }),
+        });
+
+        // Select for editing feature
+        var featureSelect = new ol.interaction.Select({
+            wrapX: false,
+        });
+        var selectedFeatures, selectedFeature, selectedId, selectedGeometry, selectedProperties;
+        var newSelectedProperties = [];
+        featureSelect.on('select', function() {
+            newSelectedProperties = [];
+            $('.feature-properties').html("");
+
+            selectedFeatures = featureSelect.getFeatures();
+            selectedFeature = selectedFeatures.item(0);
+
+            selectedId = selectedFeature.getId();
+            selectedGeometry = selectedFeature.getGeometry();
+            selectedProperties = selectedFeature.getProperties();
+            console.log(selectedProperties);
+
+            mapModules.createField('.feature-properties', 'id', selectedId, true);
+
+            for (let x in selectedProperties) {
+                if (x === 'geometry') {
+                    continue;
+                }
+                mapModules.createField('.feature-properties', x, selectedProperties[x], false);
+                // newProperties.push({
+                //     [label.innerText]: text.value
+                // });
+            }
+        });
+
+        var featureModify = new ol.interaction.Modify({
+            features: featureSelect.getFeatures(),
+        });
+
+        const featureVector = new ol.layer.Vector({
+            background: 'transparent',
+            source: new ol.source.Vector({
+                url: 'test.json',
+                format: new ol.format.GeoJSON(),
+                wrapX: false,
+            }),
+        });
+
+
         var map = new ol.Map({
             controls: ol.control.defaults().extend([fullScreen, mousePositionControl, googleOverviewMapControl, scaleControl]),
+            // interactions: ol.interaction.defaults().extend([featureSelect, featureModify]),
             target: 'map',
             layers: [
-                baseLayerGroup, hanhChinhMap, measureVector, exportVector
+                baseLayerGroup, hanhChinhMap, drawVector, featureVector, measureVector, exportVector,
             ],
             view: new ol.View({
                 // center: ol.proj.fromLonLat([109.196749, 12.238791]),
@@ -595,6 +655,39 @@ jQuery(document).ready(function($) {
             draw.getOverlay().changed();
         };
         map.removeInteraction(draw);
+
+        // Draw tool
+        let drawFeature;
+
+        var featrueIdArr = []; // Tạo id cho features
+        drawVector.getSource().on('featuresloadend', function(evt) {
+            const source = evt.target;
+            source.forEachFeature(function(feature) {
+                featrueIdArr.push(feature.getId());
+            });
+        });
+
+        function drawAddInteraction() {
+            const value = drawTypeSelect.value;
+            drawFeature = new ol.interaction.Draw({
+                source: drawVector.getSource(),
+                type: value,
+            });
+            drawFeature.on('drawend', function(e) {
+                var id = parseInt(featrueIdArr.length) + 1;
+                featrueIdArr.push(id);
+                e.feature.setId(id);
+            });
+            map.addInteraction(drawFeature);
+        }
+        drawTypeSelect.onchange = function() {
+            map.removeInteraction(drawFeature);
+            drawAddInteraction();
+        };
+        document.getElementById('undo-draw-feature').addEventListener('click', function() {
+            drawFeature.removeLastPoint();
+        });
+
         // Hightlight map when click style
         var highlightLabelStyles = {
             'MultiPolygon': new ol.style.Style({
@@ -680,7 +773,7 @@ jQuery(document).ready(function($) {
             vectorLayerPopup.setVisible(false);
         });
         $('#measure-button').on('click', function() {
-            $('.form-inline').toggleClass('form-inline--show');
+            $('.measure-tool .form-inline').toggleClass('form-inline--show');
         });
         $('#measure-switch').click(function() {
             if ($('#measure-switch').is(':checked')) {
@@ -747,7 +840,7 @@ jQuery(document).ready(function($) {
                 pdf.setFont('JetBrain', 'bold');
 
                 pdf.setFontSize(6);
-                pdf.text(dim[0] - 20, dim[1] - 10, 'DUT WREF');
+                pdf.text(dim[0] - 20, dim[1] - 10, 'GIS DUT TEAM');
 
                 pdf.setTextColor('#4271A7');
                 pdf.setFontSize(16);
@@ -769,7 +862,84 @@ jQuery(document).ready(function($) {
             map.getView().setResolution(viewResolution / scaling);
             $('#export-pdf-button').prop('disabled', false);
         });
+        $('#edit-button').click(function() {
+            $('.edit-tool .edit-form').toggleClass('edit-form--show');
+        });
+        $('#start-edit').click(function() {
+            $('#stop-edit').prop('disabled', false);
+            $('#add-field-button').prop('disabled', false);
+            $('#add-field-input').prop('disabled', false);
+            map.addInteraction(featureSelect);
+            map.addInteraction(featureModify);
+        });
+        $('#save-edit').click(function() {
+            $(this).prop('disabled', true);
+            for (let x in selectedProperties) {
+                if (x === 'geometry') {
+                    continue;
+                }
+                selectedFeature.unset(x);
+            }
+            // console.log(newProperties);
+            $('.feature-properties label').each(function() {
+                var key = $(this).text();
+                var value = $(this).next().val();
+                selectedFeature.setProperties({
+                    [key]: value
+                });
+            });
+            selectedFeature.unset('id');
+        });
+        $('#stop-edit').click(function() {
+            $('#stop-edit').prop('disabled', true);
+            $('#add-field-button').prop('disabled', true);
+            $('#add-field-input').prop('disabled', true);
+            $('#save-edit').prop('disabled', true);
+            $('#feature-properties').html('');
+            map.removeInteraction(featureSelect);
+            map.removeInteraction(featureModify);
+        });
+        $('#draw-button').click(function() {
+            $('.draw-tool .draw-form').toggleClass('draw-form--show');
+        });
+        $('#start-draw').click(function() {
+            $('#stop-draw').prop('disabled', false);
+            $('#undo-draw-feature').prop('disabled', false);
+            $('#draw-type').prop('disabled', false);
+            drawAddInteraction();
+        });
+        $('#stop-draw').click(function() {
+            $('#stop-draw').prop('disabled', true);
+            $('#undo-draw-feature').prop('disabled', true);
+            $('#draw-type').prop('disabled', true);
+            map.removeInteraction(drawFeature);
+        });
+        $('#add-field-button').click(function() {
+            $('#save-edit').prop('disabled', false);
+            var name = $('#add-field-input').val();
+            mapModules.createField('.feature-properties', name, '', false);
+            var fieldCount = document.getElementById('feature-properties').childElementCount;
+            var fieldMaxCount = 18;
+            if (fieldCount > fieldMaxCount) {
+                $('#add-field-button').prop('disabled', true);
+            }
+        });
+        // DEMO SAVE GEOJSON
+        $('#test-save').click(function() {
+            var allFeatures = drawVector.getSource().getFeatures();
+            // var allFeatures = usVector.getSource().getFeatures();
+            var format = new ol.format.GeoJSON();
+            var arrVector = format.writeFeaturesObject(allFeatures, { featureProjection: 'EPSG:3857' });
+            exportJson(arrVector);
+        });
 
+        function exportJson(featuresCollection) {
+            var txtArray = [];
+            txtArray.push(JSON.stringify(featuresCollection));
+
+            var blob = new Blob(txtArray, { type: 'text/json;charset=utf8' });
+            saveAs(blob, 'test' + ".txt")
+        };
 
         // Click Danh mục nhảy vị trí
         $(".second-content-item").each(function(event) {
@@ -814,7 +984,6 @@ jQuery(document).ready(function($) {
                 }
             }
         });
-
 
 
 
