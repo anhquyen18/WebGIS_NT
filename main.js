@@ -1,37 +1,5 @@
 import * as mapModules from "./modules.js";
-
-pageEffects();
-
-//-------------------------------------------------------------------------
-function pageEffects() {
-    const mapButton = document.getElementById("map-button");
-    const mapMenu = document.getElementById("map-menu");
-    mapButton.addEventListener('click', () => {
-        mapMenu.classList.toggle("active");
-    });
-
-    const search = document.querySelector('.search-button');
-    const searchBt = document.querySelector('#search-button');
-    const searchInput = document.querySelector('#search-input');
-    const searchResult = document.querySelector('.address');
-
-    searchBt.addEventListener('click', () => {
-        search.classList.toggle('active');
-        searchResult.classList.remove('active');
-    });
-    searchInput.addEventListener('focus', () => {
-        searchResult.classList.add('active');
-    });
-
-}
-
-function HanhChinhLabel(name, parrent, pos_x, pos_y) {
-    this.name = name;
-    this.parrent = parrent;
-    this.pos_x = pos_x;
-    this.pos_y = pos_y;
-}
-
+var map;
 
 //-------------------------------------------------------------------------
 jQuery(document).ready(function($) {
@@ -166,9 +134,13 @@ jQuery(document).ready(function($) {
         const drawTypeSelect = document.getElementById('draw-type');
 
         var openStreetMapStandard = new ol.layer.Tile({
-            source: new ol.source.OSM(),
+            source: new ol.source.OSM({
+                attributions: [],
+                attributionsCollapsible: false,
+            }),
             visible: true,
             title: 'OSMStandard'
+
         });
 
         var projection = new ol.proj.Projection({
@@ -455,19 +427,26 @@ jQuery(document).ready(function($) {
         var hanhChinhMap = new ol.layer.Image({
             source: new ol.source.ImageWMS({
                 ratio: 1,
-                url: 'http://localhost:8080/geoserver/WebGIS_NhaTrang/wms',
+                url: 'http://localhost:8080/geoserver/TestEditingFeature/wms',
+                // url: 'http://localhost:8080/geoserver/testing/wms',
                 params: {
                     'FORMAT': format,
                     'VERSION': '1.1.1',
-                    STYLES: 'WebGIS_NhaTrang:style_hanhChinhNhaTrang',
-                    LAYERS: 'WebGIS_NhaTrang:hanh_chinh_nha_trang_EPSG3857',
+                    // STYLES: 'WebGIS_NhaTrang:style_hanhChinhNhaTrang',
+                    // LAYERS: 'WebGIS_NhaTrang:hanh_chinh_nha_trang_EPSG3857',
+                    LAYERS: 'TestEditingFeature:hanh_chinh_nha_trang_EPSG3857',
                 },
                 crossOrigin: "Anonymous",
                 format: new ol.format.GeoJSON(),
                 wrapX: false,
+                serverType: 'geoserver'
             }),
         });
 
+        var hanhChinhMapGroup = new ol.layer.Group({
+            'title': 'hanhChinhMapGroup',
+            layers: [hanhChinhMap]
+        });
 
         var googleBaseMap = new ol.layer.Tile({
             title: "GoogleMap",
@@ -530,22 +509,44 @@ jQuery(document).ready(function($) {
         });
 
         // Select for editing feature
+        var selectStyle = new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(255,255,255,1)',
+            }),
+            stroke: new ol.style.Stroke({
+                color: '#3399CC',
+                width: 2,
+            }),
+            image: new ol.style.Circle({
+                radius: 10,
+                fill: new ol.style.Fill({
+                    color: '#3399CC'
+                })
+            })
+        });
+        var selectOverlay = new ol.layer.Vector({
+            title: 'high',
+            source: new ol.source.Vector(),
+            map: map,
+            style: selectStyle
+        });
         var featureSelect = new ol.interaction.Select({
             wrapX: false,
+            style: selectStyle
         });
+
         var selectedFeatures, selectedFeature, selectedId, selectedGeometry, selectedProperties;
         var newSelectedProperties = [];
         featureSelect.on('select', function() {
+            $('#save-edit').prop('disabled', false);
             newSelectedProperties = [];
             $('.feature-properties').html("");
-
             selectedFeatures = featureSelect.getFeatures();
             selectedFeature = selectedFeatures.item(0);
 
             selectedId = selectedFeature.getId();
             selectedGeometry = selectedFeature.getGeometry();
             selectedProperties = selectedFeature.getProperties();
-            console.log(selectedProperties);
 
             mapModules.createField('.feature-properties', 'id', selectedId, true);
 
@@ -554,9 +555,6 @@ jQuery(document).ready(function($) {
                     continue;
                 }
                 mapModules.createField('.feature-properties', x, selectedProperties[x], false);
-                // newProperties.push({
-                //     [label.innerText]: text.value
-                // });
             }
         });
 
@@ -574,7 +572,7 @@ jQuery(document).ready(function($) {
         });
 
 
-        var map = new ol.Map({
+        map = new ol.Map({
             controls: ol.control.defaults().extend([fullScreen, mousePositionControl, googleOverviewMapControl, scaleControl]),
             // interactions: ol.interaction.defaults().extend([featureSelect, featureModify]),
             target: 'map',
@@ -592,7 +590,44 @@ jQuery(document).ready(function($) {
             // overlays: [overlayPopup]
         });
 
+
+
         map.getView().fit(bounds, map.getSize());
+
+        var hanhChinhJsonUrl = "http://localhost:8080/geoserver/TestEditingFeature/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=TestEditingFeature%3Ahanh_chinh_nha_trang_EPSG3857&outputFormat=application%2Fjson";
+        // var hanhChinhJsonUrl = "http://localhost:8080/geoserver/testing/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=testing%3Ahcnt3857&outputFormat=application%2Fjson";
+        var hanhChinhJsonStyle = new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.1)'
+            }),
+            stroke: new ol.style.Stroke({
+                // color: '#42465c',
+                color: 'red',
+                width: 3
+            }),
+            image: new ol.style.Circle({
+                radius: 7,
+                fill: new ol.style.Fill({
+                    color: '#42465c'
+                })
+            })
+        });
+        var hanhChinhJsonMap = new ol.layer.Vector({
+            title: 'WFS_layer',
+            source: new ol.source.Vector({
+                url: hanhChinhJsonUrl,
+                format: new ol.format.GeoJSON()
+            }),
+            style: hanhChinhJsonStyle,
+        });
+
+        // Load map xong nó nhảy tới vùng mình cần
+        // hanhChinhJsonMap.getSource().on('addfeature', function() {
+        //     map.getView().fit(
+        //         geojson.getSource().getExtent(), { duration: 1590, size: map.getSize() }
+        //     );
+        // });
+        map.addLayer(hanhChinhJsonMap);
 
         // Change overviewmap
         $('.map-menu__map input').change(function() {
@@ -674,10 +709,29 @@ jQuery(document).ready(function($) {
                 type: value,
             });
             drawFeature.on('drawend', function(e) {
-                var id = parseInt(featrueIdArr.length) + 1;
-                featrueIdArr.push(id);
-                e.feature.setId(id);
-            });
+                var myFeature = e.feature;
+                if (myFeature) {
+                    mapModules.saveCreate(hanhChinhJsonMap, myFeature);
+                    console.log(value);
+                    var geometry = myFeature.getGeometry();
+                    var coord = geometry.getCoordinates();
+                    var extent = geometry.getExtent();
+                    var centroid = ol.extent.getCenter(extent);
+                    // //alert(centroid);
+                    // //var coordinate = e.coordinate;
+
+                    // featureOverlay.getSource().addFeature(myFeature);
+                    // //overlays.getLayers().push(featureOverlay);
+
+
+                    // content1 = '<label for="name_house">name_house:</label><input type="text" id="name_house" name="name_house" value=' + myFeature.get('name_house') + '><br><br>';
+                    // content1 += '<label for="area">area:</label><input type="text" id="area" name="area" value=' + myFeature.get('area') + '><br><br>';
+                    // content1 += ' <button onclick="save_created()" id = "save_created">Save Feature</button>';
+                    // content1 += ' <button onclick="cancel_created()" id = "cancel_created">Delete Feature</button>';
+                    // content.innerHTML = content1;
+                    // overlay.setPosition(centroid);
+                }
+            }, this);
             map.addInteraction(drawFeature);
         }
         drawTypeSelect.onchange = function() {
@@ -839,12 +893,15 @@ jQuery(document).ready(function($) {
                 pdf.addFont('resources/JetBrainsMono-Bold.ttf', 'JetBrain', 'bold');
                 pdf.setFont('JetBrain', 'bold');
 
+                var today = new Date();
+
                 pdf.setFontSize(6);
                 pdf.text(dim[0] - 20, dim[1] - 10, 'GIS DUT TEAM');
+                pdf.text(dim[0] - 50, dim[1] - 20, `Khánh Hòa, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`);
 
                 pdf.setTextColor('#4271A7');
                 pdf.setFontSize(16);
-                pdf.text(dim[0] / 2, 10, 'Trường Đại học Bách Khoa - Đại học Đà Nẵng\n Khoa Xây dựng Công trình thủy', { align: 'center' });
+                pdf.text(dim[0] / 2, 10, 'KHANH HOA IRRIGATION MANAGEMENT SYSTEM', { align: 'center' });
 
                 pdf.save($('#export-name').val());
                 // Reset original map size
@@ -869,32 +926,21 @@ jQuery(document).ready(function($) {
             $('#stop-edit').prop('disabled', false);
             $('#add-field-button').prop('disabled', false);
             $('#add-field-input').prop('disabled', false);
+            $('#save-edit').prop('disabled', false);
+            $('#delete-edit').prop('disabled', false);
             map.addInteraction(featureSelect);
             map.addInteraction(featureModify);
         });
         $('#save-edit').click(function() {
             $(this).prop('disabled', true);
-            for (let x in selectedProperties) {
-                if (x === 'geometry') {
-                    continue;
-                }
-                selectedFeature.unset(x);
-            }
-            // console.log(newProperties);
-            $('.feature-properties label').each(function() {
-                var key = $(this).text();
-                var value = $(this).next().val();
-                selectedFeature.setProperties({
-                    [key]: value
-                });
-            });
-            selectedFeature.unset('id');
+            mapModules.saveEdit(hanhChinhJsonMap, featureSelect);
         });
         $('#stop-edit').click(function() {
             $('#stop-edit').prop('disabled', true);
             $('#add-field-button').prop('disabled', true);
             $('#add-field-input').prop('disabled', true);
             $('#save-edit').prop('disabled', true);
+            $('#delete-edit').prop('disabled', true);
             $('#feature-properties').html('');
             map.removeInteraction(featureSelect);
             map.removeInteraction(featureModify);
@@ -918,11 +964,10 @@ jQuery(document).ready(function($) {
             $('#save-edit').prop('disabled', false);
             var name = $('#add-field-input').val();
             mapModules.createField('.feature-properties', name, '', false);
-            var fieldCount = document.getElementById('feature-properties').childElementCount;
-            var fieldMaxCount = 18;
-            if (fieldCount > fieldMaxCount) {
-                $('#add-field-button').prop('disabled', true);
-            }
+        });
+        $('#delete-edit').click(function() {;
+            $('.edit-tool .edit-form').removeClass('edit-form--show');
+            mapModules.deleteFeature(hanhChinhJsonMap, featureSelect);
         });
         // DEMO SAVE GEOJSON
         $('#test-save').click(function() {
@@ -936,7 +981,6 @@ jQuery(document).ready(function($) {
         function exportJson(featuresCollection) {
             var txtArray = [];
             txtArray.push(JSON.stringify(featuresCollection));
-
             var blob = new Blob(txtArray, { type: 'text/json;charset=utf8' });
             saveAs(blob, 'test' + ".txt")
         };
@@ -961,7 +1005,7 @@ jQuery(document).ready(function($) {
         // Tìm kiếm theo tên
         const searchingPool = [];
         mapModules.addElementToSearchingPool(hanhChinhData, searchingPool);
-        // console.log(searchingPool.length);
+
         $('#search-input').on('input', function(e) {
                 mapModules.filterData(e.target.value, searchingPool);
             })
@@ -983,6 +1027,39 @@ jQuery(document).ready(function($) {
                     });
                 }
             }
+        });
+
+        var formatWFS = new ol.format.WFS();
+
+        // GML Format zur Interaktion mit WFS
+        var formatGML = new ol.format.GML({
+            // featureNS: 'http://localhost:8080/geoserver/web/wicket/bookmarkable/org.geoserver.web.data.workspace.WorkspaceEditPage?24&name=TestEditingFeature',
+            // featureType: 'TestingEditFeature:hanh_chinh_nha_trang_ESPG3857',
+            // srsName: "urn:x-ogc:def:crs:EPSG:3857"
+        });
+
+        var transactWFS = function(transactionType, feature) {
+            var node;
+            switch (transactionType) {
+                case 'insert':
+                    node = formatWFS.writeTransaction([feature], null, null, formatGML);
+                    break;
+                case 'update':
+                    node = formatWFS.writeTransaction(null, [feature], null, formatGML);
+                    break;
+                case 'delete':
+                    node = formatWFS.writeTransaction(null, null, [feature], formatGML);
+                    break;
+            }
+            var s = new XMLSerializer();
+            var str = s.serializeToString(node);
+            console.log(s);
+            console.log(str);
+        }
+
+        $('#testt-button').click(function() {
+            mapModules.saveCreate(hanhChinhJsonMap, selectedFeature);
+
         });
 
 
