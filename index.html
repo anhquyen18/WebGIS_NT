@@ -18,7 +18,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
     <script src="https://requirejs.org/docs/release/2.3.6/comments/require.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/5ed507ef8aa53d8ecfea96d96bc7214cd2476fd2/FileSaver.min.js"></script>
 
 </head>
 
@@ -26,7 +25,7 @@
     <div class="container">
         <div class="top">
             <img src="resources/Logo_BoNongNghiep.png" alt="" id="logo">
-            <h3 id="heading">HỆ THỐNG QUẢN LÝ CÔNG TRÌNH THỦY LỢI KHÁNH KHÒA<br>KHANH HOA IRRIGATION MANAGEMENT SYSTEM</h3>
+            <h3 id="heading">HỆ THỐNG QUẢN LÝ CÔNG TRÌNH THỦY LỢI KHÁNH HÒA<br>KHANH HOA IRRIGATION MANAGEMENT SYSTEM</h3>
             <nav class="hyperlink-container">
                 <a href="">Trang Chủ</a>
                 <a href="">Giới Thiệu</a>
@@ -51,6 +50,9 @@
                 </button>
                 <button class="tool" id="hand-button" title="Con trỏ">
                     <i class="fa-solid fa-hand" ></i>
+                </button>
+                <button class="tool" id="test-button" title="Test">
+                    <!-- <i class="fa-solid fa-hand" ></i> -->
                 </button>
                 <div class="measure-tool">
                     <button class="tool" id="measure-button" title="Đo đạc">
@@ -120,12 +122,13 @@
                         <div class="edit-form__button-container">
                             <button id="start-edit" type="button">Start Editing</button>
                             <button id="save-edit" type="button" disabled>Save</button>
+                            <button id="delete-edit" type="button" disabled>Delete</button>
                             <button id="stop-edit" type="button" disabled>Stop Editing</button>
                         </div>
-                        <div>
+                        <!-- <div class="edit-form__add-field-container">
                             <button id="add-field-button" type="button" disabled>Add Field</button>
-                            <input type="text" id="add-field-input" maxlength="11" disabled>
-                        </div>
+                            <input type="text" id="add-field-input" maxlength="15" disabled>
+                        </div> -->
                         <div class="feature-properties" id="feature-properties">
                         </div>
                     </form>
@@ -141,13 +144,12 @@
                         </div>
                         <label for="draw-type">Dạng nét vẽ: &nbsp;</label>
                         <select id="draw-type" disabled>
-                            <option value="Point">Điểm (Point)</option>
-                            <option value="LineString">Đường thẳng (LineString)</option>
+                            <!-- <option value="Point">Điểm (Point)</option> -->
+                            <!-- <option value="LineString">Đường thẳng (LineString)</option> -->
                             <option value="Polygon">Đa giác (Polygon)</option>
                             <!-- <option value="Circle">Đường tròn (Circle)</option> -->
                             </select><br>
                         <button id="undo-draw-feature" type="button" disabled>Undo</button>
-                        <button id="test-save" type="button">Test Save</button>
                     </form>
                 </div>
                 <div class="search-tool">
@@ -232,7 +234,7 @@
                     <option value="1:5000">1:5.000</option>
                     <option value="1:10000">1:10.000</option></select>
             <p>|</p>
-            <P>DEVELOPED BY GIS DUT TEAM</P>
+            <P>POWERED BY GIS DUT TEAM</P>
             <div id="mouse-position"></div>
         </div>
         <div class="scale-line" id="scale-line"></div>
@@ -246,6 +248,7 @@
 
 
     <script type="module" src='./main.js'></script>
+    <script type="module" src='./pageAnimation.js'></script>
 </body>
 
 </html>

@@ -20,7 +20,6 @@ jQuery(document).ready(function($) {
             return a.type_3.localeCompare(b.type_3);
         });
 
-
         for (let i = 0; i < hanhChinhData.length; i++) {
             huyenData.push({ name: hanhChinhData[i].name_2, prefix: `${mapModules.getParentPrefix(hanhChinhData[i].name_2)}` });
         }
@@ -428,7 +427,9 @@ jQuery(document).ready(function($) {
             source: new ol.source.ImageWMS({
                 ratio: 1,
                 url: 'http://localhost:8080/geoserver/TestEditingFeature/wms',
+                // url: 'http://localhost:8080/geoserver/WebGIS_NhaTrang/wms',
                 // url: 'http://localhost:8080/geoserver/testing/wms',
+                // url: 'https://dutmaps.site/geoserver/WebGIS_NhaTrang/wms',
                 params: {
                     'FORMAT': format,
                     'VERSION': '1.1.1',
@@ -436,7 +437,7 @@ jQuery(document).ready(function($) {
                     // LAYERS: 'WebGIS_NhaTrang:hanh_chinh_nha_trang_EPSG3857',
                     LAYERS: 'TestEditingFeature:hanh_chinh_nha_trang_EPSG3857',
                 },
-                crossOrigin: "Anonymous",
+                // crossOrigin: "Anonymous",
                 format: new ol.format.GeoJSON(),
                 wrapX: false,
                 serverType: 'geoserver'
@@ -455,7 +456,7 @@ jQuery(document).ready(function($) {
             opacity: 1,
             source: new ol.source.XYZ({
                 url: "https://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}&s=Ga",
-                crossOrigin: "Anonymous"
+                // crossOrigin: "Anonymous"
             }),
         });
 
@@ -502,9 +503,9 @@ jQuery(document).ready(function($) {
         var drawVector = new ol.layer.Vector({
             background: 'transparent',
             source: new ol.source.Vector({
-                url: 'test (1).json',
-                format: new ol.format.GeoJSON(),
-                wrapX: false,
+                // url: hanhChinhJsonUrl,
+                // format: new ol.format.GeoJSON(),
+                // wrapX: false,
             }),
         });
 
@@ -562,22 +563,13 @@ jQuery(document).ready(function($) {
             features: featureSelect.getFeatures(),
         });
 
-        const featureVector = new ol.layer.Vector({
-            background: 'transparent',
-            source: new ol.source.Vector({
-                url: 'test.json',
-                format: new ol.format.GeoJSON(),
-                wrapX: false,
-            }),
-        });
-
 
         map = new ol.Map({
             controls: ol.control.defaults().extend([fullScreen, mousePositionControl, googleOverviewMapControl, scaleControl]),
             // interactions: ol.interaction.defaults().extend([featureSelect, featureModify]),
             target: 'map',
             layers: [
-                baseLayerGroup, hanhChinhMap, drawVector, featureVector, measureVector, exportVector,
+                baseLayerGroup, hanhChinhMap, measureVector, exportVector,
             ],
             view: new ol.View({
                 // center: ol.proj.fromLonLat([109.196749, 12.238791]),
@@ -590,11 +582,17 @@ jQuery(document).ready(function($) {
             // overlays: [overlayPopup]
         });
 
-
-
         map.getView().fit(bounds, map.getSize());
+        $('#test-button').click(function() {
+            console.log(geoJsonArray);
+            console.log(testDataArray);
+            // console.log(geoJsonArray);
+            // map.getView().fit(geoJsonArray[2], map.getSize());
+        });
 
         var hanhChinhJsonUrl = "http://localhost:8080/geoserver/TestEditingFeature/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=TestEditingFeature%3Ahanh_chinh_nha_trang_EPSG3857&outputFormat=application%2Fjson";
+        // var hanhChinhJsonUrl = "http://localhost:8080/geoserver/WebGIS_NhaTrang/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=WebGIS_NhaTrang%3Ahanh_chinh_nha_trang_EPSG3857&outputFormat=application%2Fjson";
+        // var hanhChinhJsonUrl = "https://dutmaps.site/geoserver/WebGIS_NhaTrang/ows?service=WFS&vers4ion=1.0.0&request=GetFeature&typeName=WebGIS_NhaTrang%3Ahanh_chinh_nha_trang_EPSG3857&outputFormat=application%2Fjson";
         // var hanhChinhJsonUrl = "http://localhost:8080/geoserver/testing/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=testing%3Ahcnt3857&outputFormat=application%2Fjson";
         var hanhChinhJsonStyle = new ol.style.Style({
             fill: new ol.style.Fill({
@@ -621,13 +619,31 @@ jQuery(document).ready(function($) {
             style: hanhChinhJsonStyle,
         });
 
+        // Lấy data từ layer mà không cần phải đẩy lên postgreSQL
+        var geoJsonArray = [];
+        var testDataArray = [];
+        map.addLayer(hanhChinhJsonMap);
+        hanhChinhJsonMap.getSource().on('featuresloadend', function(evt) {
+            const source = evt.target;
+            source.forEachFeature(function(feature) {
+                geoJsonArray.push(feature.getGeometry().getExtent());
+                testDataArray.push(feature.get('VARNAME_3'));
+                // console.log(feature.getGeometry().getExtent());
+            });
+            map.removeLayer(hanhChinhJsonMap);
+        });
+        // map.removeLayer(hanhChinhJsonMap);
+
+        // hanhChinhJsonMap.setVisible(false);
+        // map.removeLayer(hanhChinhJsonMap);
+
         // Load map xong nó nhảy tới vùng mình cần
         // hanhChinhJsonMap.getSource().on('addfeature', function() {
         //     map.getView().fit(
         //         geojson.getSource().getExtent(), { duration: 1590, size: map.getSize() }
         //     );
         // });
-        map.addLayer(hanhChinhJsonMap);
+
 
         // Change overviewmap
         $('.map-menu__map input').change(function() {
@@ -694,13 +710,13 @@ jQuery(document).ready(function($) {
         // Draw tool
         let drawFeature;
 
-        var featrueIdArr = []; // Tạo id cho features
-        drawVector.getSource().on('featuresloadend', function(evt) {
-            const source = evt.target;
-            source.forEachFeature(function(feature) {
-                featrueIdArr.push(feature.getId());
-            });
-        });
+        // var featrueIdArr = []; // Tạo id cho features
+        // drawVector.getSource().on('featuresloadend', function(evt) {
+        //     const source = evt.target;
+        //     source.forEachFeature(function(feature) {
+        //         featrueIdArr.push(feature.getId());
+        //     });
+        // });
 
         function drawAddInteraction() {
             const value = drawTypeSelect.value;
@@ -712,24 +728,6 @@ jQuery(document).ready(function($) {
                 var myFeature = e.feature;
                 if (myFeature) {
                     mapModules.saveCreate(hanhChinhJsonMap, myFeature);
-                    console.log(value);
-                    var geometry = myFeature.getGeometry();
-                    var coord = geometry.getCoordinates();
-                    var extent = geometry.getExtent();
-                    var centroid = ol.extent.getCenter(extent);
-                    // //alert(centroid);
-                    // //var coordinate = e.coordinate;
-
-                    // featureOverlay.getSource().addFeature(myFeature);
-                    // //overlays.getLayers().push(featureOverlay);
-
-
-                    // content1 = '<label for="name_house">name_house:</label><input type="text" id="name_house" name="name_house" value=' + myFeature.get('name_house') + '><br><br>';
-                    // content1 += '<label for="area">area:</label><input type="text" id="area" name="area" value=' + myFeature.get('area') + '><br><br>';
-                    // content1 += ' <button onclick="save_created()" id = "save_created">Save Feature</button>';
-                    // content1 += ' <button onclick="cancel_created()" id = "cancel_created">Delete Feature</button>';
-                    // content.innerHTML = content1;
-                    // overlay.setPosition(centroid);
                 }
             }, this);
             map.addInteraction(drawFeature);
@@ -860,7 +858,7 @@ jQuery(document).ready(function($) {
                     document.querySelectorAll('.ol-layer canvas'),
                     function(canvas) {
                         if (canvas.width > 0) {
-                            canvas.setAttribute('crossOrigin', 'anonymous');
+                            // canvas.setAttribute('crossOrigin', 'anonymous');
                             const opacity = canvas.parentNode.style.opacity;
                             mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
                             const transform = canvas.style.transform;
@@ -923,6 +921,7 @@ jQuery(document).ready(function($) {
             $('.edit-tool .edit-form').toggleClass('edit-form--show');
         });
         $('#start-edit').click(function() {
+            map.addLayer(hanhChinhJsonMap);
             $('#stop-edit').prop('disabled', false);
             $('#add-field-button').prop('disabled', false);
             $('#add-field-input').prop('disabled', false);
@@ -942,6 +941,7 @@ jQuery(document).ready(function($) {
             $('#save-edit').prop('disabled', true);
             $('#delete-edit').prop('disabled', true);
             $('#feature-properties').html('');
+            map.removeLayer(hanhChinhJsonMap);
             map.removeInteraction(featureSelect);
             map.removeInteraction(featureModify);
         });
@@ -968,14 +968,6 @@ jQuery(document).ready(function($) {
         $('#delete-edit').click(function() {;
             $('.edit-tool .edit-form').removeClass('edit-form--show');
             mapModules.deleteFeature(hanhChinhJsonMap, featureSelect);
-        });
-        // DEMO SAVE GEOJSON
-        $('#test-save').click(function() {
-            var allFeatures = drawVector.getSource().getFeatures();
-            // var allFeatures = usVector.getSource().getFeatures();
-            var format = new ol.format.GeoJSON();
-            var arrVector = format.writeFeaturesObject(allFeatures, { featureProjection: 'EPSG:3857' });
-            exportJson(arrVector);
         });
 
         function exportJson(featuresCollection) {
